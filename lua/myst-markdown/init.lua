@@ -25,6 +25,10 @@ function M.setup(opts)
         
         -- Configure parser for myst filetype to use markdown parser
         local parsers = require("nvim-treesitter.parsers")
+        -- Ensure filetype_to_parsername table exists before assigning
+        if not parsers.filetype_to_parsername then
+          parsers.filetype_to_parsername = {}
+        end
         parsers.filetype_to_parsername.myst = "markdown"
         
         -- Start tree-sitter highlighting with markdown parser
