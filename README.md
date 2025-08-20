@@ -62,6 +62,20 @@ print(df)
 
 Will be highlighted with language-specific syntax highlighting, similar to standard markdown code blocks.
 
+**Supported Languages in Code Cells:**
+- Python (`python`)
+- JavaScript (`javascript`) 
+- TypeScript (`typescript`)
+- Bash (`bash`)
+- R (`r`)
+- Julia (`julia`)
+- C (`c`)
+- C++ (`cpp`)
+- Rust (`rust`)
+- Go (`go`)
+
+For other languages, ensure you have the corresponding tree-sitter parser installed with `:TSInstall <language>`.
+
 ### MyST Directives and Roles
 
 The plugin also highlights MyST-specific syntax:
