@@ -85,3 +85,12 @@
   (code_fence_content) @injection.content)
   (#not-eq? @injection.language "")
   (#not-match? @injection.language "^\\{"))
+
+;; LaTeX math support: Enable $$...$$ and $...$ highlighting via markdown_inline parser
+;; Only apply to content that's NOT inside fenced_code_blocks to avoid conflicts
+((paragraph
+  (inline) @injection.content)
+  (#set! injection.language "markdown_inline"))
+
+((pipe_table_cell) @injection.content
+  (#set! injection.language "markdown_inline"))

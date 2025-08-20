@@ -69,3 +69,9 @@ This is a warning block directive.
 ## Math
 
 MyST also supports math: $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$
+
+And block math:
+
+$$
+\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+$$
