@@ -12,6 +12,7 @@ required_files=(
   "ftplugin/myst.lua"
   "lua/myst-markdown/init.lua"
   "queries/myst/highlights.scm"
+  "queries/myst/injections.scm"
 )
 
 for file in "${required_files[@]}"; do
@@ -56,6 +57,18 @@ for file in $lua_files; do
     echo "  ? $file may have issues"
   fi
 done
+
+echo
+echo "✓ MyST injection queries validation:"
+if [[ -f "queries/myst/injections.scm" ]]; then
+  injection_count=$(grep -c "injection.language" queries/myst/injections.scm)
+  echo "  ✓ Found $injection_count language injection patterns"
+  
+  echo "  ✓ Supported languages:"
+  grep -o 'injection.language.*"[^"]*"' queries/myst/injections.scm | sed 's/.*"\([^"]*\)".*/    - \1/' | sort | uniq
+else
+  echo "  ✗ Missing injection queries file"
+fi
 
 echo
 echo "✓ MyST features detected in sample:"

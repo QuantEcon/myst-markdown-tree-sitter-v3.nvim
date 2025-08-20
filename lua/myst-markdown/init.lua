@@ -23,9 +23,14 @@ function M.setup(opts)
           },
         })
         
+        -- Configure parser for myst filetype to use markdown parser
+        local parsers = require("nvim-treesitter.parsers")
+        parsers.filetype_to_parsername.myst = "markdown"
+        
         -- Start tree-sitter highlighting with markdown parser
         local has_highlighter, _ = pcall(function()
           if vim.treesitter.start then
+            -- Use markdown parser but with myst filetype for query resolution
             vim.treesitter.start(0, "markdown")
           end
         end)
