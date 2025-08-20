@@ -104,14 +104,7 @@ function M.setup_injection_queries()
   local myst_injection_content = string.format([[;; MyST Markdown Language Injection Queries
 ;; These queries tell tree-sitter to parse code-cell content with appropriate language parsers
 
-;; Standard markdown language injection (preserve existing behavior)
-((fenced_code_block
-  (info_string) @injection.language
-  (code_fence_content) @injection.content)
-  (#not-eq? @injection.language "")
-  (#not-match? @injection.language "^\\{"))
-
-;; MyST code-cell injection patterns
+;; MyST code-cell injection patterns (processed first)
 ;; Inject Python parser into code-cell python blocks
 ((fenced_code_block
   (info_string) @_lang
@@ -187,7 +180,14 @@ function M.setup_injection_queries()
   (info_string) @_directive
   (code_fence_content) @injection.content)
   (#eq? @_directive "{code-cell}")
-  (#set! injection.language "%s"))]], default_lang)
+  (#set! injection.language "%s"))
+
+;; Standard markdown language injection (preserve existing behavior)
+((fenced_code_block
+  (info_string) @injection.language
+  (code_fence_content) @injection.content)
+  (#not-eq? @injection.language "")
+  (#not-match? @injection.language "^\\{"))]], default_lang)
 
   -- Generate markdown injection queries
   local markdown_injection_content = string.format([[;; MyST Markdown Language Injection Queries (Enhanced)

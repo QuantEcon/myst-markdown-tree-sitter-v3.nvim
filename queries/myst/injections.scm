@@ -1,14 +1,7 @@
 ;; MyST Markdown Language Injection Queries
 ;; These queries tell tree-sitter to parse code-cell content with appropriate language parsers
 
-;; Standard markdown language injection (preserve existing behavior)
-((fenced_code_block
-  (info_string) @injection.language
-  (code_fence_content) @injection.content)
-  (#not-eq? @injection.language "")
-  (#not-match? @injection.language "^\\{"))
-
-;; MyST code-cell injection patterns
+;; MyST code-cell injection patterns (processed first)
 ;; Inject Python parser into code-cell python blocks
 ((fenced_code_block
   (info_string) @_lang
@@ -85,3 +78,10 @@
   (code_fence_content) @injection.content)
   (#eq? @_directive "{code-cell}")
   (#set! injection.language "python"))
+
+;; Standard markdown language injection (preserve existing behavior)
+((fenced_code_block
+  (info_string) @injection.language
+  (code_fence_content) @injection.content)
+  (#not-eq? @injection.language "")
+  (#not-match? @injection.language "^\\{"))
