@@ -1,0 +1,19 @@
+# Build artifacts
+*.o
+*.so
+*.dylib
+
+# Editor files
+.vscode/
+.vim/
+*.swp
+*.swo
+*~
+
+# Test artifacts
+test/output/
+test/tmp/
+
+# OS files
+.DS_Store
+Thumbs.db
