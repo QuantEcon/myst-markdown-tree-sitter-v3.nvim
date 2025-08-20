@@ -31,10 +31,11 @@ function M.setup(opts)
         end
         parsers.filetype_to_parsername.myst = "markdown"
         
-        -- Start tree-sitter highlighting with markdown parser
+        -- Start tree-sitter highlighting
         local has_highlighter, _ = pcall(function()
           if vim.treesitter.start then
-            -- Use markdown parser but with myst filetype for query resolution
+            -- Start with markdown parser for the myst filetype
+            -- Tree-sitter will look for myst queries because of the filetype
             vim.treesitter.start(0, "markdown")
           end
         end)
