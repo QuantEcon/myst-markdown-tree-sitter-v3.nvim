@@ -48,6 +48,16 @@ use {
 
 The plugin automatically detects MyST markdown files based on content patterns and applies appropriate syntax highlighting.
 
+### Manual Commands
+
+For debugging and manual control, the plugin provides these commands:
+
+- `:MystEnable` - Enable MyST highlighting for the current buffer
+- `:MystDisable` - Disable MyST highlighting for the current buffer (reverts to markdown)
+- `:MystDebug` - Show debugging information about MyST state and tree-sitter queries
+
+These commands are useful for debugging highlighting issues and testing MyST functionality.
+
 ### Code Cells
 
 MyST code-cell directives like this:
@@ -60,7 +70,16 @@ print(df)
 ```
 ```
 
-Will be highlighted with language-specific syntax highlighting, similar to standard markdown code blocks. **This now works correctly with tree-sitter injection queries.**
+Will be highlighted with language-specific syntax highlighting, similar to standard markdown code blocks.
+
+**Code-cell blocks without explicit language will default to Python highlighting:**
+
+```markdown
+```{code-cell}
+import pandas as pd  # This gets Python syntax highlighting
+print("Default language is Python")
+```
+```
 
 **Supported Languages in Code Cells:**
 - Python (`python`)

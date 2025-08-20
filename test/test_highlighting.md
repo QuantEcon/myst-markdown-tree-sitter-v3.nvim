@@ -33,6 +33,14 @@ ls -la
 ## Edge Cases
 
 ```{code-cell}
-# This should use text highlighting
-print("No language specified")
+# This should use Python highlighting (default)
+import pandas as pd
+print("No language specified, but should be Python")
+```
+
+```{code-cell}
+# Another test of default Python highlighting
+def test_function():
+    return "Hello from MyST code-cell with default Python!"
+print(test_function())
 ```

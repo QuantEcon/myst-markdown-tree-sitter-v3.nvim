@@ -72,12 +72,12 @@
   (#eq? @_lang "{code-cell} typescript")
   (#set! injection.language "typescript"))
 
-;; Handle code-cell blocks without explicit language (default to text)
+;; Handle code-cell blocks without explicit language (default to python)
 ((fenced_code_block
   (info_string) @_directive
   (code_fence_content) @injection.content)
   (#eq? @_directive "{code-cell}")
-  (#set! injection.language "text"))
+  (#set! injection.language "python"))
 
 ;; Standard markdown language injection (preserve existing behavior)
 ;; This handles regular markdown code blocks like ```python
