@@ -48,6 +48,16 @@ use {
 
 The plugin automatically detects MyST markdown files based on content patterns and applies appropriate syntax highlighting.
 
+### Manual Commands
+
+For debugging and manual control, the plugin provides these commands:
+
+- `:MystEnable` - Enable MyST highlighting for the current buffer
+- `:MystDisable` - Disable MyST highlighting for the current buffer (reverts to markdown)
+- `:MystDebug` - Show debugging information about MyST state and tree-sitter queries
+
+These commands are useful for debugging highlighting issues and testing MyST functionality.
+
 ### Code Cells
 
 MyST code-cell directives like this:
@@ -60,7 +70,16 @@ print(df)
 ```
 ```
 
-Will be highlighted with language-specific syntax highlighting, similar to standard markdown code blocks. **This now works correctly with tree-sitter injection queries.**
+Will be highlighted with language-specific syntax highlighting, similar to standard markdown code blocks.
+
+**Code-cell blocks without explicit language will default to Python highlighting:**
+
+```markdown
+```{code-cell}
+import pandas as pd  # This gets Python syntax highlighting
+print("Default language is Python")
+```
+```
 
 **Supported Languages in Code Cells:**
 - Python (`python`)
@@ -86,9 +105,46 @@ The plugin also highlights MyST-specific syntax:
 
 ## Configuration
 
+The plugin can be configured with various options:
+
 ```lua
 require('myst-markdown').setup({
-  -- Configuration options will be added in future versions
+  -- Default language for code-cell blocks without explicit language
+  -- Defaults to "python", but can be any language supported by tree-sitter
+  default_code_cell_language = "python"  -- or "julia", "r", "javascript", etc.
+})
+```
+
+### Configuration Options
+
+- `default_code_cell_language` (string, default: `"python"`) - The language to use for syntax highlighting in `{code-cell}` blocks that don't specify a language explicitly. This affects blocks like:
+  ```markdown
+  ```{code-cell}
+  # This code will be highlighted with the configured default language
+  print("Hello world")
+  ```
+  ```
+
+**Example configurations:**
+
+For R users:
+```lua
+require('myst-markdown').setup({
+  default_code_cell_language = "r"
+})
+```
+
+For Julia users:
+```lua
+require('myst-markdown').setup({
+  default_code_cell_language = "julia"
+})
+```
+
+For JavaScript users:
+```lua
+require('myst-markdown').setup({
+  default_code_cell_language = "javascript"
 })
 ```
 
