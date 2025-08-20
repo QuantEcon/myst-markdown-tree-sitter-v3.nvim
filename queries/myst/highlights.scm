@@ -6,5 +6,5 @@
 ;; Let tree-sitter handle the content with normal language highlighting
 (fenced_code_block
   (info_string) @myst.code_cell.directive
-  (#match? @myst.code_cell.directive "^{code-cell}")
+  (#match? @myst.code_cell.directive "^\\{code-cell\\}")
 )

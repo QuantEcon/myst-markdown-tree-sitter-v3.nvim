@@ -85,4 +85,4 @@
   (info_string) @injection.language
   (code_fence_content) @injection.content)
   (#not-eq? @injection.language "")
-  (#not-match? @injection.language "^{"))
+  (#not-match? @injection.language "^\\{"))

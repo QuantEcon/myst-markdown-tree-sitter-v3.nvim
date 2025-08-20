@@ -6,7 +6,7 @@
   (info_string) @injection.language
   (code_fence_content) @injection.content)
   (#not-eq? @injection.language "")
-  (#not-match? @injection.language "^{"))
+  (#not-match? @injection.language "^\\{"))
 
 ;; MyST code-cell injection patterns
 ;; Inject Python parser into code-cell python blocks
