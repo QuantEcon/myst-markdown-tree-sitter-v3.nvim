@@ -4,6 +4,9 @@ local M = {}
 function M.setup(opts)
   opts = opts or {}
   
+  -- Set up filetype detection
+  M.setup_filetype_detection()
+  
   -- Set up syntax highlighting for myst filetype
   vim.api.nvim_create_autocmd("FileType", {
     pattern = "myst",
@@ -39,6 +42,41 @@ function M.setup(opts)
       -- Set up minimal MyST-specific highlighting for code-cell directives only
       M.setup_myst_highlighting()
     end
+  })
+end
+
+-- Setup filetype detection
+function M.setup_filetype_detection()
+  -- Primary detection on file read
+  vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+    pattern = "*.md",
+    callback = function()
+      local lines = vim.api.nvim_buf_get_lines(0, 0, 50, false) -- Check first 50 lines
+      
+      for _, line in ipairs(lines) do
+        -- Check specifically for code-cell directives
+        if line:match("^```{code%-cell}") then
+          vim.bo.filetype = "myst"
+          return
+        end
+      end
+    end,
+  })
+
+  -- Secondary detection to override markdown filetype if MyST content is detected
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = "markdown",
+    callback = function()
+      local lines = vim.api.nvim_buf_get_lines(0, 0, 50, false) -- Check first 50 lines
+      
+      for _, line in ipairs(lines) do
+        -- Check specifically for code-cell directives
+        if line:match("^```{code%-cell}") then
+          vim.bo.filetype = "myst"
+          return
+        end
+      end
+    end,
   })
 end
 
