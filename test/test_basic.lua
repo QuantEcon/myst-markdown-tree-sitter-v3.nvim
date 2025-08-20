@@ -27,10 +27,12 @@ local function test_myst_detection(content, expected)
   local is_myst = false
   
   for _, line in ipairs(content) do
-    if line:match("^```{[%w%-_]+}") or    -- MyST directives like {code-cell}
-       line:match("{[%w%-_]+}`[^`]*`") or -- MyST roles like {doc}`filename`
-       line:match("^:::{[%w%-_]+}") or    -- MyST block directives
-       line:match("^---$") then           -- YAML frontmatter (common in MyST)
+    if line:match("^```{code%-cell}") or       -- Code-cell directive
+       line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
+       line:match("^{[%w%-_]+}") or            -- Standalone MyST directives
+       line:match("{[%w%-_]+}`[^`]*`") or      -- MyST roles like {doc}`filename`
+       line:match("^:::{[%w%-_]+}") or         -- MyST block directives
+       line:match("^---$") then                -- YAML frontmatter (common in MyST)
       is_myst = true
       break
     end
