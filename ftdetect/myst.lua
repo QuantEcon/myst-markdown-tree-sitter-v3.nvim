@@ -1,5 +1,5 @@
 -- Filetype detection for MyST markdown files
--- Auto-detect MyST markdown files based on content
+-- Auto-detect MyST markdown files based on code-cell directives
 
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
   pattern = "*.md",
@@ -8,11 +8,8 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
     local is_myst = false
     
     for _, line in ipairs(lines) do
-      -- Check for MyST-specific syntax patterns
-      if line:match("^```{[%w%-_]+}") or    -- MyST directives like {code-cell}
-         line:match("{[%w%-_]+}`[^`]*`") or -- MyST roles like {doc}`filename`
-         line:match("^:::{[%w%-_]+}") or    -- MyST block directives
-         line:match("^---$") then           -- YAML frontmatter (common in MyST)
+      -- Check specifically for code-cell directives
+      if line:match("^```{code%-cell}") then
         is_myst = true
         break
       end
