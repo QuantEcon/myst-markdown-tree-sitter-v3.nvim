@@ -86,10 +86,11 @@
   (#not-eq? @injection.language "")
   (#not-match? @injection.language "^\\{"))
 
-;; Critical: Inject markdown_inline parser for inline content (including LaTeX math)
-;; This enables LaTeX highlighting in $$...$$ blocks and other inline markdown
-([
-  (inline)
-  (pipe_table_cell)
-] @injection.content
+;; LaTeX math support: Enable $$...$$ and $...$ highlighting via markdown_inline parser
+;; Only apply to content that's NOT inside fenced_code_blocks to avoid conflicts
+((paragraph
+  (inline) @injection.content)
+  (#set! injection.language "markdown_inline"))
+
+((pipe_table_cell) @injection.content
   (#set! injection.language "markdown_inline"))
