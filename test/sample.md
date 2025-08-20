@@ -32,6 +32,24 @@ df = pd.DataFrame()
 print(df)
 ```
 
+Here's a JavaScript code-cell:
+
+```{code-cell} javascript
+const data = [1, 2, 3, 4, 5];
+const doubled = data.map(x => x * 2);
+console.log(doubled);
+```
+
+Here's a Bash code-cell:
+
+```{code-cell} bash
+#!/bin/bash
+echo "Testing MyST code-cell syntax highlighting"
+for i in {1..5}; do
+    echo "Count: $i"
+done
+```
+
 ## Other MyST Features
 
 Here's a MyST role: {doc}`some_document`
