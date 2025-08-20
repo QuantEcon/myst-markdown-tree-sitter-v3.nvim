@@ -1,8 +1,26 @@
 local M = {}
 
+-- Default configuration
+M.config = {
+  default_code_cell_language = "python"
+}
+
 -- Setup function for the MyST markdown plugin
 function M.setup(opts)
   opts = opts or {}
+  
+  -- Merge user options with defaults (with fallback for non-vim environments)
+  if vim and vim.tbl_deep_extend then
+    M.config = vim.tbl_deep_extend("force", M.config, opts)
+  else
+    -- Simple merge for testing environments
+    for k, v in pairs(opts) do
+      M.config[k] = v
+    end
+  end
+  
+  -- Generate injection queries with configured default language
+  M.setup_injection_queries()
   
   -- Set up filetype detection
   M.setup_filetype_detection()
@@ -56,6 +74,230 @@ function M.setup(opts)
       M.setup_myst_highlighting()
     end
   })
+end
+
+-- Setup injection queries with configured default language
+function M.setup_injection_queries()
+  local default_lang = M.config.default_code_cell_language
+  
+  -- Skip dynamic query generation in test environments
+  if not vim or not vim.fn then
+    return
+  end
+  
+  -- Get the queries directory
+  local queries_dir = vim.fn.stdpath('data') .. '/lazy/myst-markdown-tree-sitter-v3.nvim/queries'
+  
+  -- If the plugin is installed in different location, try to find it
+  if vim.fn.isdirectory(queries_dir) == 0 then
+    -- Try runtime path
+    local runtime_paths = vim.api.nvim_list_runtime_paths()
+    for _, path in ipairs(runtime_paths) do
+      if path:match('myst%-markdown') then
+        queries_dir = path .. '/queries'
+        break
+      end
+    end
+  end
+  
+  -- Generate MyST injection queries
+  local myst_injection_content = string.format([[;; MyST Markdown Language Injection Queries
+;; These queries tell tree-sitter to parse code-cell content with appropriate language parsers
+
+;; Standard markdown language injection (preserve existing behavior)
+((fenced_code_block
+  (info_string) @injection.language
+  (code_fence_content) @injection.content)
+  (#not-eq? @injection.language "")
+  (#not-match? @injection.language "^\\{"))
+
+;; MyST code-cell injection patterns
+;; Inject Python parser into code-cell python blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} python")
+  (#set! injection.language "python"))
+
+;; Inject JavaScript parser into code-cell javascript blocks  
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} javascript")
+  (#set! injection.language "javascript"))
+
+;; Inject Bash parser into code-cell bash blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} bash")
+  (#set! injection.language "bash"))
+
+;; Inject R parser into code-cell r blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} r")
+  (#set! injection.language "r"))
+
+;; Inject Julia parser into code-cell julia blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} julia")
+  (#set! injection.language "julia"))
+
+;; Inject C++ parser into code-cell cpp blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} cpp")
+  (#set! injection.language "cpp"))
+
+;; Inject C parser into code-cell c blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} c")
+  (#set! injection.language "c"))
+
+;; Inject Rust parser into code-cell rust blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} rust")
+  (#set! injection.language "rust"))
+
+;; Inject Go parser into code-cell go blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} go")
+  (#set! injection.language "go"))
+
+;; Inject TypeScript parser into code-cell typescript blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} typescript")
+  (#set! injection.language "typescript"))
+
+;; Handle code-cell blocks without explicit language (default to configured language)
+((fenced_code_block
+  (info_string) @_directive
+  (code_fence_content) @injection.content)
+  (#eq? @_directive "{code-cell}")
+  (#set! injection.language "%s"))]], default_lang)
+
+  -- Generate markdown injection queries
+  local markdown_injection_content = string.format([[;; MyST Markdown Language Injection Queries (Enhanced)
+;; These queries extend standard markdown with MyST code-cell support
+
+;; MyST code-cell injection patterns (processed first)
+;; Inject Python parser into code-cell python blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} python")
+  (#set! injection.language "python"))
+
+;; Inject JavaScript parser into code-cell javascript blocks  
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} javascript")
+  (#set! injection.language "javascript"))
+
+;; Inject Bash parser into code-cell bash blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} bash")
+  (#set! injection.language "bash"))
+
+;; Inject R parser into code-cell r blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} r")
+  (#set! injection.language "r"))
+
+;; Inject Julia parser into code-cell julia blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} julia")
+  (#set! injection.language "julia"))
+
+;; Inject C++ parser into code-cell cpp blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} cpp")
+  (#set! injection.language "cpp"))
+
+;; Inject C parser into code-cell c blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} c")
+  (#set! injection.language "c"))
+
+;; Inject Rust parser into code-cell rust blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} rust")
+  (#set! injection.language "rust"))
+
+;; Inject Go parser into code-cell go blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} go")
+  (#set! injection.language "go"))
+
+;; Inject TypeScript parser into code-cell typescript blocks
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} typescript")
+  (#set! injection.language "typescript"))
+
+;; Handle code-cell blocks without explicit language (default to configured language)
+((fenced_code_block
+  (info_string) @_directive
+  (code_fence_content) @injection.content)
+  (#eq? @_directive "{code-cell}")
+  (#set! injection.language "%s"))
+
+;; Standard markdown language injection (preserve existing behavior)
+;; This handles regular markdown code blocks like ```python
+((fenced_code_block
+  (info_string) @injection.language
+  (code_fence_content) @injection.content)
+  (#not-eq? @injection.language "")
+  (#not-match? @injection.language "^\\{"))]], default_lang)
+
+  -- Write the injection query files (only if we can write to the queries directory)
+  local myst_dir = queries_dir .. '/myst'
+  local markdown_dir = queries_dir .. '/markdown'
+  
+  if vim.fn.isdirectory(myst_dir) == 1 and vim.fn.filewritable(myst_dir) == 2 then
+    local myst_file = io.open(myst_dir .. '/injections.scm', 'w')
+    if myst_file then
+      myst_file:write(myst_injection_content)
+      myst_file:close()
+    end
+  end
+  
+  if vim.fn.isdirectory(markdown_dir) == 1 and vim.fn.filewritable(markdown_dir) == 2 then
+    local markdown_file = io.open(markdown_dir .. '/injections.scm', 'w')
+    if markdown_file then
+      markdown_file:write(markdown_injection_content)
+      markdown_file:close()
+    end
+  end
 end
 
 -- Setup filetype detection
@@ -132,6 +374,7 @@ function M.debug_myst()
   print("Current filetype: " .. filetype)
   print("Tree-sitter available: " .. tostring(has_treesitter))
   print("Active parser: " .. parser_info)
+  print("Default code-cell language: " .. M.config.default_code_cell_language)
   
   -- Check if myst queries exist
   local myst_highlights = vim.treesitter.query.get("markdown", "highlights")

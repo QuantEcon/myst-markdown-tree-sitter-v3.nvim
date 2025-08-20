@@ -105,9 +105,46 @@ The plugin also highlights MyST-specific syntax:
 
 ## Configuration
 
+The plugin can be configured with various options:
+
 ```lua
 require('myst-markdown').setup({
-  -- Configuration options will be added in future versions
+  -- Default language for code-cell blocks without explicit language
+  -- Defaults to "python", but can be any language supported by tree-sitter
+  default_code_cell_language = "python"  -- or "julia", "r", "javascript", etc.
+})
+```
+
+### Configuration Options
+
+- `default_code_cell_language` (string, default: `"python"`) - The language to use for syntax highlighting in `{code-cell}` blocks that don't specify a language explicitly. This affects blocks like:
+  ```markdown
+  ```{code-cell}
+  # This code will be highlighted with the configured default language
+  print("Hello world")
+  ```
+  ```
+
+**Example configurations:**
+
+For R users:
+```lua
+require('myst-markdown').setup({
+  default_code_cell_language = "r"
+})
+```
+
+For Julia users:
+```lua
+require('myst-markdown').setup({
+  default_code_cell_language = "julia"
+})
+```
+
+For JavaScript users:
+```lua
+require('myst-markdown').setup({
+  default_code_cell_language = "javascript"
 })
 ```
 
