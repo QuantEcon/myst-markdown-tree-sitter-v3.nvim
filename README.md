@@ -60,7 +60,7 @@ print(df)
 ```
 ```
 
-Will be highlighted with language-specific syntax highlighting, similar to standard markdown code blocks.
+Will be highlighted with language-specific syntax highlighting, similar to standard markdown code blocks. **This now works correctly with tree-sitter injection queries.**
 
 **Supported Languages in Code Cells:**
 - Python (`python`)
