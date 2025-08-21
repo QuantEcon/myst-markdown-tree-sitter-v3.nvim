@@ -109,44 +109,33 @@ The plugin can be configured with various options:
 
 ```lua
 require('myst-markdown').setup({
-  -- Default language for code-cell blocks without explicit language
-  -- Defaults to "python", but can be any language supported by tree-sitter
-  default_code_cell_language = "python"  -- or "julia", "r", "javascript", etc.
+  -- Note: Configuration options are currently limited to prevent plugin update issues
+  -- The plugin uses static injection queries that default to Python for code-cell blocks
 })
 ```
 
 ### Configuration Options
 
-- `default_code_cell_language` (string, default: `"python"`) - The language to use for syntax highlighting in `{code-cell}` blocks that don't specify a language explicitly. This affects blocks like:
-  ```markdown
-  ```{code-cell}
-  # This code will be highlighted with the configured default language
-  print("Hello world")
-  ```
-  ```
+**Note**: As of the current version, configuration options are limited to prevent plugin update conflicts. The `default_code_cell_language` option is not currently functional.
 
-**Example configurations:**
+- `default_code_cell_language` (string, **currently non-functional**) - This option was temporarily disabled to fix plugin update issues where dynamic query generation caused local git changes. The plugin now uses static injection queries that default to Python for `{code-cell}` blocks without explicit language specification.
 
-For R users:
+**Current behavior:**
+```markdown
+```{code-cell}
+# This code will be highlighted with Python syntax (hardcoded default)
+print("Hello world")
+```
+```
+
+**Example setup (configuration currently ignored):**
 ```lua
 require('myst-markdown').setup({
-  default_code_cell_language = "r"
+  -- This setting currently has no effect, but the setup call is still required
 })
 ```
 
-For Julia users:
-```lua
-require('myst-markdown').setup({
-  default_code_cell_language = "julia"
-})
-```
-
-For JavaScript users:
-```lua
-require('myst-markdown').setup({
-  default_code_cell_language = "javascript"
-})
-```
+**Future plans**: We plan to restore configurable default languages in a future update using a method that doesn't cause plugin update conflicts.
 
 ## Testing
 
