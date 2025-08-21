@@ -8,21 +8,18 @@ The `tree-sitter-markdown` syntax highlighter was not recognizing `ipython` and 
 
 ## Solution Implemented
 
-Added support for `ipython` and `ipython3` as synonyms for `python` in both:
-1. MyST code-cell blocks: `{code-cell} ipython` and `{code-cell} ipython3`
-2. Regular markdown code blocks: ````ipython` and ````ipython3`
+Added support for `ipython` and `ipython3` as synonyms for `python` in MyST code-cell blocks only:
+- `{code-cell} ipython` and `{code-cell} ipython3`
 
 ## Files Modified
 
 ### 1. `queries/myst/injections.scm`
-Added 4 new injection patterns:
+Added 2 new injection patterns:
 - `{code-cell} ipython` → injection.language "python"
 - `{code-cell} ipython3` → injection.language "python"
-- ````ipython` → injection.language "python"
-- ````ipython3` → injection.language "python"
 
 ### 2. `queries/markdown/injections.scm`
-Added the same 4 injection patterns as above for consistency.
+Added the same 2 injection patterns as above for consistency.
 
 ## Code Changes
 
@@ -43,25 +40,6 @@ Added the same 4 injection patterns as above for consistency.
   (#set! injection.language "python"))
 ```
 
-### Regular Markdown Support
-```tree-sitter
-;; Handle regular markdown ipython blocks (map to python)
-((fenced_code_block
-  (info_string
-    (language) @_lang)
-  (code_fence_content) @injection.content)
-  (#eq? @_lang "ipython")
-  (#set! injection.language "python"))
-
-;; Handle regular markdown ipython3 blocks (map to python)
-((fenced_code_block
-  (info_string
-    (language) @_lang)
-  (code_fence_content) @injection.content)
-  (#eq? @_lang "ipython3")
-  (#set! injection.language "python"))
-```
-
 ## Usage Examples
 
 ### Before (No Syntax Highlighting)
@@ -70,7 +48,7 @@ Added the same 4 injection patterns as above for consistency.
 import pandas as pd  # No syntax highlighting
 ```
 
-```ipython3
+```{code-cell} ipython3
 import numpy as np   # No syntax highlighting
 ```
 ````
@@ -81,7 +59,7 @@ import numpy as np   # No syntax highlighting
 import pandas as pd  # ✓ Python syntax highlighting
 ```
 
-```ipython3
+```{code-cell} ipython3
 import numpy as np   # ✓ Python syntax highlighting
 ```
 ````
@@ -97,12 +75,12 @@ Created comprehensive tests to validate:
 ## Verification
 
 - ✅ MyST code-cell ipython/ipython3 support
-- ✅ Regular markdown ipython/ipython3 support  
 - ✅ All existing functionality preserved
 - ✅ No breaking changes
 - ✅ Comprehensive test coverage
 - ✅ Pattern ordering maintained
+- ✅ Regular markdown blocks remain unaffected (preserves tree-sitter-markdown behavior)
 
 ## Impact
 
-This change enables proper Python syntax highlighting for Jupyter notebook users who commonly use `ipython` and `ipython3` language identifiers in their MyST markdown documents, improving the editing experience in Neovim.
+This change enables proper Python syntax highlighting for Jupyter notebook users who commonly use `ipython` and `ipython3` language identifiers in their MyST code-cell directives, improving the editing experience in Neovim while preserving standard tree-sitter-markdown behavior for regular code blocks.
