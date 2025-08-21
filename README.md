@@ -112,6 +112,25 @@ The plugin works automatically without configuration:
 require('myst-markdown').setup()
 ```
 
+### Manual Commands
+
+The plugin provides several commands for troubleshooting and manual control:
+
+- `:MystEnable` - Force enable MyST highlighting for current buffer
+- `:MystDisable` - Disable MyST highlighting (revert to markdown)
+- `:MystRefresh` - Force refresh highlighting (useful if highlighting breaks)
+- `:MystStatus` - Quick health check of MyST highlighting status
+- `:MystDebug` - Detailed debugging information with diagnostic suggestions
+
+### Troubleshooting
+
+If MyST highlighting is not working:
+
+1. Run `:MystStatus` for a quick health check
+2. If file is not detected as MyST, try `:MystEnable`
+3. If tree-sitter is not active, try `:MystRefresh`
+4. For detailed diagnosis, run `:MystDebug`
+
 ## Testing
 
 A sample MyST file is provided in `test/sample.md` for testing the plugin functionality.
