@@ -41,15 +41,9 @@ vim.api.nvim_create_autocmd("FileType", {
           -- Try to call refresh function if plugin is loaded
           local ok, myst = pcall(require, 'myst-markdown')
           if ok and myst.refresh_highlighting then
-            local success, message = myst.refresh_highlighting()
-            if not success then
-              -- If refresh failed, try again after a longer delay
-              vim.defer_fn(function()
-                myst.refresh_highlighting()
-              end, 100)
-            end
+            myst.refresh_highlighting()
           end
-        end, 50) -- Increased delay for more reliable refresh
+        end, 50) -- Simple refresh without retry logic
         break
       end
     end
