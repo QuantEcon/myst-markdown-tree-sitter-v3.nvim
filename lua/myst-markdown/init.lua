@@ -87,7 +87,13 @@ function M.setup_filetype_detection()
           vim.bo.filetype = "myst"
           -- Force refresh highlighting after filetype change
           vim.defer_fn(function()
-            M.refresh_highlighting()
+            local success, message = M.refresh_highlighting()
+            if not success then
+              -- If refresh failed, try again after a longer delay
+              vim.defer_fn(function()
+                M.refresh_highlighting()
+              end, 100)
+            end
           end, 50) -- Increased delay for more reliable refresh
           return
         end
@@ -109,64 +115,92 @@ function M.refresh_highlighting()
   
   -- Validate buffer is still valid
   if not vim.api.nvim_buf_is_valid(buf) then
-    return
+    return false, "Buffer is not valid"
   end
   
   -- Try to refresh tree-sitter highlighting using proper nvim-treesitter APIs
   local has_treesitter = pcall(require, "nvim-treesitter.configs")
   if has_treesitter then
-    local success = false
-    
-    -- Method 1: Use nvim-treesitter highlight module (preferred)
-    pcall(function()
-      local ts_highlight = require("nvim-treesitter.highlight")
-      
-      -- Detach existing highlighter
-      if ts_highlight.active and ts_highlight.active[buf] then
-        ts_highlight.detach(buf)
-      end
+    local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+    if ts_highlight_ok and ts_highlight then
       
       -- Determine parser language
       local parser_lang = (filetype == "myst") and "markdown" or filetype
       
-      -- Small delay to ensure clean detach before reattach
-      vim.defer_fn(function()
-        -- Check buffer is still valid before reattaching
-        if vim.api.nvim_buf_is_valid(buf) then
-          pcall(function()
-            -- Reattach with proper language
-            ts_highlight.attach(buf, parser_lang)
-          end)
+      -- Detach existing highlighter if present
+      if ts_highlight.active and ts_highlight.active[buf] then
+        local detach_ok = pcall(function()
+          ts_highlight.detach(buf)
+        end)
+        if not detach_ok then
+          return false, "Failed to detach existing highlighter"
         end
-      end, 50)
+      end
       
-      success = true
-    end)
-    
-    -- Method 2: Fallback to vim.treesitter API if nvim-treesitter method fails
-    if not success then
-      pcall(function()
-        if vim.treesitter.stop then
-          vim.treesitter.stop(buf)
-        end
-        
-        vim.defer_fn(function()
-          if vim.api.nvim_buf_is_valid(buf) then
-            local parser_lang = (filetype == "myst") and "markdown" or filetype
-            pcall(function()
-              if vim.treesitter.start then
-                vim.treesitter.start(buf, parser_lang)
-              end
-            end)
-          end
-        end, 50)
+      -- Wait a moment for clean detach, then reattach synchronously
+      vim.wait(10) -- Short synchronous wait instead of defer_fn
+      
+      -- Validate buffer is still valid after wait
+      if not vim.api.nvim_buf_is_valid(buf) then
+        return false, "Buffer became invalid during refresh"
+      end
+      
+      -- Attempt to attach highlighter
+      local attach_ok, attach_err = pcall(function()
+        ts_highlight.attach(buf, parser_lang)
       end)
+      
+      if not attach_ok then
+        -- Try alternative approach using vim.treesitter directly
+        local fallback_ok = pcall(function()
+          if vim.treesitter.stop then
+            vim.treesitter.stop(buf)
+          end
+          vim.wait(10) -- Short wait
+          if vim.treesitter.start then
+            vim.treesitter.start(buf, parser_lang)
+          end
+        end)
+        
+        if not fallback_ok then
+          return false, "Both nvim-treesitter and vim.treesitter attach failed"
+        end
+      end
+      
+      -- Validate that highlighter is now active
+      vim.wait(50) -- Give time for highlighter to initialize
+      local is_active = ts_highlight.active and ts_highlight.active[buf] ~= nil
+      
+      if is_active then
+        return true, "Tree-sitter highlighting activated successfully"
+      else
+        -- Force a more aggressive refresh
+        pcall(function()
+          vim.cmd("edit!") -- Force buffer reload
+        end)
+        vim.wait(100)
+        
+        -- Check again after forced reload
+        is_active = ts_highlight.active and ts_highlight.active[buf] ~= nil
+        if is_active then
+          return true, "Tree-sitter highlighting activated after forced reload"
+        else
+          return false, "Tree-sitter highlighter failed to activate"
+        end
+      end
+    else
+      return false, "nvim-treesitter.highlight module not available"
     end
   else
     -- Fallback to vim syntax refresh
-    pcall(function()
+    local syntax_ok = pcall(function()
       vim.cmd("syntax sync fromstart")
     end)
+    if syntax_ok then
+      return true, "Using fallback syntax highlighting"
+    else
+      return false, "All highlighting methods failed"
+    end
   end
 end
 
@@ -177,13 +211,18 @@ function M.enable_myst()
   
   -- Only refresh if filetype actually changed
   if old_filetype ~= "myst" then
-    -- Force refresh tree-sitter highlighting with a more aggressive approach
+    -- Force refresh tree-sitter highlighting
     vim.defer_fn(function()
-      M.refresh_highlighting()
+      local success, message = M.refresh_highlighting()
+      if success then
+        print("MyST highlighting enabled for current buffer - " .. message)
+      else
+        print("MyST highlighting enabled for current buffer (filetype set) - " .. (message or "unknown error"))
+      end
     end, 10)
+  else
+    print("MyST highlighting enabled for current buffer")
   end
-  
-  print("MyST highlighting enabled for current buffer")
 end
 
 -- Manual command to disable MyST highlighting for current buffer
@@ -193,13 +232,18 @@ function M.disable_myst()
   
   -- Only refresh if filetype actually changed
   if old_filetype ~= "markdown" then
-    -- Force refresh tree-sitter highlighting with a more aggressive approach
+    -- Force refresh tree-sitter highlighting
     vim.defer_fn(function()
-      M.refresh_highlighting()
+      local success, message = M.refresh_highlighting()
+      if success then
+        print("MyST highlighting disabled for current buffer (reverted to markdown) - " .. message)
+      else
+        print("MyST highlighting disabled for current buffer (filetype set) - " .. (message or "unknown error"))
+      end
     end, 10)
+  else
+    print("MyST highlighting disabled for current buffer (reverted to markdown)")
   end
-  
-  print("MyST highlighting disabled for current buffer (reverted to markdown)")
 end
 
 -- Debug function to show current MyST state
@@ -300,19 +344,26 @@ function M.setup_commands()
     print("MyST highlighting refresh initiated...")
     print("Current filetype: " .. filetype)
     
-    M.refresh_highlighting()
+    local success, message = M.refresh_highlighting()
     
-    -- Provide feedback after a delay to allow refresh to complete
-    vim.defer_fn(function()
-      local has_treesitter = pcall(require, "nvim-treesitter.configs")
-      if has_treesitter then
-        local ts_highlight = require("nvim-treesitter.highlight")
-        local highlighter_active = ts_highlight.active and ts_highlight.active[buf] ~= nil
-        print("MyST highlighting refreshed - Tree-sitter active: " .. tostring(highlighter_active))
-      else
-        print("MyST highlighting refreshed - Using fallback syntax highlighting")
-      end
-    end, 100)
+    if success then
+      print("MyST highlighting refreshed successfully - " .. message)
+      
+      -- Provide additional feedback about tree-sitter status
+      vim.defer_fn(function()
+        local has_treesitter = pcall(require, "nvim-treesitter.configs")
+        if has_treesitter then
+          local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+          if ts_highlight_ok and ts_highlight then
+            local highlighter_active = ts_highlight.active and ts_highlight.active[buf] ~= nil
+            print("Tree-sitter highlighter status: " .. (highlighter_active and "active" or "not active"))
+          end
+        end
+      end, 50)
+    else
+      print("MyST highlighting refresh failed - " .. (message or "unknown error"))
+      print("Consider trying :MystDisable followed by :MystEnable")
+    end
   end, { desc = 'Force refresh MyST highlighting for current buffer' })
 end
 
