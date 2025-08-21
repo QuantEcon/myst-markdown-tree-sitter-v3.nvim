@@ -1,4 +1,4 @@
--- myst-markdown-tree-sitter-v3.nvim
+-- myst-markdown-tree-sitter.nvim
 -- MyST Markdown plugin for neovim with tree-sitter support
 
 if vim.g.loaded_myst_markdown then

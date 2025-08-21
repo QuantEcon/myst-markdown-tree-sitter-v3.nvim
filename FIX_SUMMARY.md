@@ -4,7 +4,7 @@
 Users were unable to update the MyST plugin via plugin managers (lazy.nvim, etc.) due to local git changes error:
 
 ```
-Your local changes in .local/share/nvim/lazy/myst-markdown-tree-sitter-v3.nvim
+Your local changes in .local/share/nvim/lazy/myst-markdown-tree-sitter.nvim
    * queries/markdown/injections.scm
    * queries/myst/injections.scm
  Please remove them to update.
