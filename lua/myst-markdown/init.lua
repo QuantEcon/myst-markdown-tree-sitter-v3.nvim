@@ -81,13 +81,13 @@ function M.setup_myst_highlighting()
   -- Create priority-based highlight groups for MyST directives
   -- Higher priority ensures MyST highlights take precedence over markdown
   vim.api.nvim_set_hl(0, "@myst.code_cell.directive", { 
-    fg = "#ff6b6b", 
+    link = "Special",
     priority = 110  -- Higher than default priority
   })
   
   -- Additional MyST-specific highlights with priority
   vim.api.nvim_set_hl(0, "@myst.directive", { 
-    fg = "#ff6b6b", 
+    link = "Special", 
     priority = 110
   })
 end
