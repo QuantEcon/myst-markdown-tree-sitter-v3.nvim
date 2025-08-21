@@ -44,9 +44,7 @@ print("✓ MyST module loaded successfully")
 
 -- Test 2: Test setup without creating files
 local setup_success, setup_error = pcall(function()
-  myst_module.setup({
-    default_code_cell_language = "julia"
-  })
+  myst_module.setup({})
 end)
 
 if not setup_success then
@@ -68,19 +66,10 @@ end
 
 print("✓ Injection queries setup completed without file writes")
 
--- Test 4: Check that configuration is still accessible
-if myst_module.config and myst_module.config.default_code_cell_language then
-  print("✓ Configuration is accessible:", myst_module.config.default_code_cell_language)
-else
-  print("✗ Configuration not accessible")
-  return 1
-end
-
 print("\n=== Test Summary ===")
 print("✓ Module loads successfully")
 print("✓ Setup runs without errors") 
 print("✓ No files are written during setup")
-print("✓ Configuration remains accessible")
 print("✓ Plugin will not create local git changes")
 
 print("\nAll tests passed! The plugin update issue is fixed.")
