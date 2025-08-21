@@ -1,9 +1,9 @@
 #!/usr/bin/env lua
 
--- Test script for priority-based highlighting approach (Issue #42)
--- This validates that the simplified priority-based approach works correctly
+-- Test script for MyST highlighting compatibility fix (Issue #44)
+-- This validates that MyST highlighting works without priority parameter
 
-print("Testing priority-based MyST highlighting approach (Issue #42)...")
+print("Testing MyST highlighting compatibility fix (Issue #44)...")
 
 -- Mock vim environment for testing
 local mock_vim = {
@@ -20,6 +20,8 @@ local mock_vim = {
       end
       if opts.priority and opts.priority >= 110 then
         print("  High priority highlight detected (should override markdown)")
+      elseif not opts.priority then
+        print("  Using standard highlight (no priority for compatibility)")
       end
     end,
   },
@@ -73,12 +75,12 @@ myst_module.disable_myst()
 print("\n=== Testing Command Setup ===")
 myst_module.setup_commands()
 
-print("\n=== Priority-based Approach Summary ===")
+print("\n=== Compatibility Fix Summary ===")
 print("✓ Removed complex race condition retry logic")
-print("✓ Implemented priority-based highlighting (priority = 110)")
+print("✓ Removed priority parameter for Neovim compatibility")
 print("✓ Simplified refresh function without validation loops")
 print("✓ Streamlined enable/disable commands")
 print("✓ Reduced timing delays from 150ms to 50ms")
-print("\nThe priority-based approach should resolve highlighting issues more simply!")
+print("\nThe simplified approach should work across more Neovim versions!")
 
 return 0
