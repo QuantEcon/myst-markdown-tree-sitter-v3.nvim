@@ -18,7 +18,7 @@ local mock_vim = {
     nvim_buf_set_extmark = function() end,
     nvim_create_namespace = function() return 1 end,
     nvim_list_runtime_paths = function() 
-      return {"/fake/path/myst-markdown-tree-sitter-v3.nvim"} 
+      return {"/fake/path/myst-markdown-tree-sitter.nvim"} 
     end,
   },
   fn = {

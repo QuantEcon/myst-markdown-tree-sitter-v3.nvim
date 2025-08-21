@@ -1,4 +1,4 @@
-# myst-markdown-tree-sitter-v3.nvim
+# myst-markdown-tree-sitter.nvim
 
 A MyST Markdown plugin for neovim with tree-sitter backend support.
 
@@ -18,7 +18,7 @@ This plugin provides syntax highlighting and filetype detection for [MyST (Marke
 
 ```lua
 use {
-  'QuantEcon/myst-markdown-tree-sitter-v3.nvim',
+  'QuantEcon/myst-markdown-tree-sitter.nvim',
   requires = {'nvim-treesitter/nvim-treesitter'},
   config = function()
     require('myst-markdown').setup()
@@ -30,7 +30,7 @@ use {
 
 ```lua
 {
-  'QuantEcon/myst-markdown-tree-sitter-v3.nvim',
+  'QuantEcon/myst-markdown-tree-sitter.nvim',
   dependencies = {'nvim-treesitter/nvim-treesitter'},
   config = function()
     require('myst-markdown').setup()
