@@ -80,8 +80,10 @@
   (#set! injection.language "python"))
 
 ;; Standard markdown language injection (preserve existing behavior)
+;; This must match the official tree-sitter-markdown pattern
 ((fenced_code_block
-  (info_string) @injection.language
+  (info_string
+    (language) @injection.language)
   (code_fence_content) @injection.content)
   (#not-eq? @injection.language "")
   (#not-match? @injection.language "^\\{"))
