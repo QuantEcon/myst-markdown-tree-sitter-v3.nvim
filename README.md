@@ -55,8 +55,9 @@ For debugging and manual control, the plugin provides these commands:
 - `:MystEnable` - Enable MyST highlighting for the current buffer
 - `:MystDisable` - Disable MyST highlighting for the current buffer (reverts to markdown)
 - `:MystDebug` - Show debugging information about MyST state and tree-sitter queries
+- `:MystRefresh` - Force refresh MyST highlighting for the current buffer
 
-These commands are useful for debugging highlighting issues and testing MyST functionality.
+These commands are useful for debugging highlighting issues and testing MyST functionality. The `:MystRefresh` command is particularly helpful if syntax highlighting appears to be missing or incorrect.
 
 ### Code Cells
 
