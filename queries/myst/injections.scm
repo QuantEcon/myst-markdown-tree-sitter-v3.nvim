@@ -9,6 +9,20 @@
   (#eq? @_lang "{code-cell} python")
   (#set! injection.language "python"))
 
+;; Inject Python parser into code-cell ipython blocks (synonym for python)
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} ipython")
+  (#set! injection.language "python"))
+
+;; Inject Python parser into code-cell ipython3 blocks (synonym for python)
+((fenced_code_block
+  (info_string) @_lang
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "{code-cell} ipython3")
+  (#set! injection.language "python"))
+
 ;; Inject JavaScript parser into code-cell javascript blocks  
 ((fenced_code_block
   (info_string) @_lang
@@ -77,6 +91,22 @@
   (info_string) @_directive
   (code_fence_content) @injection.content)
   (#eq? @_directive "{code-cell}")
+  (#set! injection.language "python"))
+
+;; Handle regular markdown ipython blocks (map to python)
+((fenced_code_block
+  (info_string
+    (language) @_lang)
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "ipython")
+  (#set! injection.language "python"))
+
+;; Handle regular markdown ipython3 blocks (map to python)
+((fenced_code_block
+  (info_string
+    (language) @_lang)
+  (code_fence_content) @injection.content)
+  (#eq? @_lang "ipython3")
   (#set! injection.language "python"))
 
 ;; Standard markdown language injection (preserve existing behavior)
