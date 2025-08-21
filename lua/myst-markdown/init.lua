@@ -273,25 +273,54 @@ function M.debug_myst()
   -- Check tree-sitter highlighting status with more detail
   local ts_highlighter = nil
   local highlighter_info = "not active"
+  local highlighter_errors = {}
+  
   if has_treesitter then
-    pcall(function()
-      local ts_highlight = require("nvim-treesitter.highlight")
+    local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+    if ts_highlight_ok and ts_highlight then
       if ts_highlight.active then
         ts_highlighter = ts_highlight.active[buf]
-      end
-      if ts_highlighter then
-        highlighter_info = "active"
-        -- Try to get more info about the highlighter
-        if ts_highlighter.tree then
-          highlighter_info = highlighter_info .. " (has tree)"
+        if ts_highlighter then
+          highlighter_info = "active"
+          -- Try to get more info about the highlighter
+          if ts_highlighter.tree then
+            highlighter_info = highlighter_info .. " (has tree)"
+          else
+            table.insert(highlighter_errors, "missing tree")
+          end
+          if ts_highlighter.parser then
+            highlighter_info = highlighter_info .. " (has parser)"
+          else
+            table.insert(highlighter_errors, "missing parser")
+          end
+        else
+          table.insert(highlighter_errors, "no highlighter instance for buffer")
         end
-        if ts_highlighter.parser then
-          highlighter_info = highlighter_info .. " (has parser)"
-        end
+      else
+        table.insert(highlighter_errors, "ts_highlight.active is nil")
       end
-    end)
+    else
+      table.insert(highlighter_errors, "failed to load nvim-treesitter.highlight")
+    end
+  else
+    table.insert(highlighter_errors, "nvim-treesitter not available")
   end
+  
   print("Tree-sitter highlighter: " .. highlighter_info)
+  if #highlighter_errors > 0 then
+    print("Highlighter issues: " .. table.concat(highlighter_errors, ", "))
+    
+    -- Provide diagnostic suggestions
+    print("\nDiagnostic suggestions:")
+    if filetype == "myst" then
+      print("  - Try :MystRefresh to force re-initialization")
+      print("  - Try :MystDisable followed by :MystEnable")
+    else
+      print("  - File may not be detected as MyST. Try :MystEnable")
+    end
+    print("  - Ensure nvim-treesitter is properly installed")
+    print("  - Ensure markdown parser is installed with :TSInstall markdown")
+  end
   
   -- Check if tree-sitter is properly configured for myst filetype
   if has_treesitter then
@@ -337,6 +366,10 @@ function M.setup_commands()
     M.debug_myst()
   end, { desc = 'Show MyST debugging information' })
   
+  vim.api.nvim_create_user_command('MystStatus', function()
+    M.status_myst()
+  end, { desc = 'Show quick MyST status check' })
+  
   vim.api.nvim_create_user_command('MystRefresh', function()
     local buf = vim.api.nvim_get_current_buf()
     local filetype = vim.bo.filetype
@@ -365,6 +398,51 @@ function M.setup_commands()
       print("Consider trying :MystDisable followed by :MystEnable")
     end
   end, { desc = 'Force refresh MyST highlighting for current buffer' })
+end
+
+-- Quick status check for MyST highlighting
+function M.status_myst()
+  local buf = vim.api.nvim_get_current_buf()
+  local filetype = vim.bo.filetype
+  local has_treesitter = pcall(require, "nvim-treesitter.configs")
+  
+  print("=== MyST Status ===")
+  print("Filetype: " .. filetype)
+  
+  if filetype == "myst" then
+    print("✓ File detected as MyST")
+  else
+    print("✗ File not detected as MyST (use :MystEnable to force)")
+  end
+  
+  if has_treesitter then
+    local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+    if ts_highlight_ok and ts_highlight and ts_highlight.active and ts_highlight.active[buf] then
+      print("✓ Tree-sitter highlighting active")
+    else
+      print("✗ Tree-sitter highlighting not active (use :MystRefresh)")
+    end
+  else
+    print("✗ nvim-treesitter not available")
+  end
+  
+  -- Check for MyST content
+  local lines = vim.api.nvim_buf_get_lines(0, 0, 20, false)
+  local has_myst_content = false
+  for _, line in ipairs(lines) do
+    if line:match("^```{code%-cell}") or line:match("^```{[%w%-_]+}") then
+      has_myst_content = true
+      break
+    end
+  end
+  
+  if has_myst_content then
+    print("✓ MyST content detected in buffer")
+  else
+    print("? No obvious MyST content found (check full file)")
+  end
+  
+  print("==================")
 end
 
 return M

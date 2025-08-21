@@ -52,6 +52,13 @@ else
   return 1
 end
 
+if type(myst_module.status_myst) == 'function' then
+  print("✓ status_myst function exists")
+else
+  print("✗ status_myst function not found")
+  return 1
+end
+
 print("\nAll Issue #35 fix tests completed successfully!")
 print("Improvements made:")
 print("  - Synchronous tree-sitter attach/detach with proper validation")
@@ -60,5 +67,7 @@ print("  - More aggressive fallback mechanisms")
 print("  - Enhanced command feedback with success/failure status")
 print("  - Retry logic for failed refresh attempts")
 print("  - Forced buffer reload as last resort")
+print("  - New :MystStatus command for quick health checks")
+print("  - Enhanced :MystDebug with diagnostic suggestions")
 
 return 0
