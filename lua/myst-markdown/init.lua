@@ -13,7 +13,7 @@ function M.setup(opts)
   -- Set up manual commands
   M.setup_commands()
   
-  -- Set up syntax highlighting for myst filetype using priority-based highlighting
+  -- Set up syntax highlighting for myst filetype
   vim.api.nvim_create_autocmd("FileType", {
     pattern = "myst",
     callback = function()
@@ -35,7 +35,7 @@ function M.setup(opts)
         vim.cmd("setlocal syntax=markdown")
       end
       
-      -- Set up priority-based MyST highlighting to override markdown highlights
+      -- Set up MyST highlighting
       M.setup_myst_highlighting()
     end
   })
@@ -78,21 +78,19 @@ end
 
 -- Setup minimal MyST-specific highlighting
 function M.setup_myst_highlighting()
-  -- Create priority-based highlight groups for MyST directives
-  -- Higher priority ensures MyST highlights take precedence over markdown
+  -- Create highlight groups for MyST directives
+  -- Note: Priority parameter removed for compatibility with older Neovim versions
   vim.api.nvim_set_hl(0, "@myst.code_cell.directive", { 
-    link = "Special",
-    priority = 110  -- Higher than default priority
+    link = "Special"
   })
   
-  -- Additional MyST-specific highlights with priority
+  -- Additional MyST-specific highlights
   vim.api.nvim_set_hl(0, "@myst.directive", { 
-    link = "Special", 
-    priority = 110
+    link = "Special"
   })
 end
 
--- Simple refresh highlighting function - priority-based approach
+-- Simple refresh highlighting function
 function M.refresh_highlighting()
   local buf = vim.api.nvim_get_current_buf()
   local filetype = vim.bo.filetype
@@ -116,7 +114,7 @@ function M.refresh_highlighting()
       end
     end)
     
-    -- Refresh MyST highlighting with priorities
+    -- Refresh MyST highlighting
     M.setup_myst_highlighting()
     
     return true, "Tree-sitter highlighting refreshed"
