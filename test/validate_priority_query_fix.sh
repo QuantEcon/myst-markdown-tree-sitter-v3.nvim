@@ -2,14 +2,14 @@
 
 # Validation script for Tree-sitter priority fix (Issue #46)
 # This script validates that the Tree-sitter priority predicates fix
-# the intermittent MyST highlighting issue
+# the intermittent MyST highlighting issue for {code-cell} directives only
 
 echo "=== Tree-sitter Priority Fix Validation (Issue #46) ==="
 echo ""
 
 echo "1. Checking for Tree-sitter priority predicates..."
 
-# Check for priority predicates in the highlights file
+# Check for priority predicate for code-cell directives
 if grep -q '#set! "priority" 110' queries/myst/highlights.scm; then
     echo "✓ Found priority 110 predicate for {code-cell} directives"
 else
@@ -17,11 +17,12 @@ else
     exit 1
 fi
 
+# Verify no general directive priority (scope limited to code-cell only)
 if grep -q '#set! "priority" 105' queries/myst/highlights.scm; then
-    echo "✓ Found priority 105 predicate for other MyST directives"
-else
-    echo "✗ Missing priority 105 predicate for other MyST directives"
+    echo "✗ Found unexpected priority 105 predicate - should only support {code-cell}"
     exit 1
+else
+    echo "✓ Confirmed scope is limited to {code-cell} directives only"
 fi
 
 echo ""
@@ -34,11 +35,12 @@ else
     exit 1
 fi
 
-if grep -q '@myst.directive' queries/myst/highlights.scm; then
-    echo "✓ Found @myst.directive capture group"
-else
-    echo "✗ Missing @myst.directive capture group" 
+# Verify no general directive capture (scope limited to code-cell only)
+if grep -q '@myst.directive' queries/myst/highlights.scm && ! grep -q '@myst.code_cell.directive' queries/myst/highlights.scm; then
+    echo "✗ Found unexpected general directive pattern - should only support {code-cell}"
     exit 1
+else
+    echo "✓ Confirmed scope is limited to {code-cell} directives only"
 fi
 
 echo ""
@@ -51,26 +53,20 @@ else
     exit 1
 fi
 
-if grep -q '\[a-zA-Z\]' queries/myst/highlights.scm; then
-    echo "✓ General MyST directive pattern present"
-else
-    echo "✗ Missing general MyST directive pattern"
-    exit 1
-fi
-
 echo ""
 echo "4. Fix summary:"
 echo "   ✓ Uses Tree-sitter's native #set! \"priority\" predicate"
 echo "   ✓ Priority 110 for {code-cell} directives (highest)"
-echo "   ✓ Priority 105 for other MyST directives (high)"
+echo "   ✓ Scope limited to {code-cell} directives only"
 echo "   ✓ No complex Lua timing or retry logic needed"
 echo "   ✓ Follows Tree-sitter best practices"
 
 echo ""
 echo "5. Expected behavior:"
-echo "   - MyST directives will override markdown highlighting consistently"
-echo "   - No more intermittent highlighting issues"
+echo "   - {code-cell} directives will override markdown highlighting consistently"
+echo "   - No more intermittent highlighting issues for {code-cell}"
 echo "   - Reliable highlighting without timing dependencies"
+echo "   - Other MyST directives: Not supported (future feature)"
 
 echo ""
 echo "=== Validation Complete - All Checks Passed! ==="

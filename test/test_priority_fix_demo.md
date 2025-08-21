@@ -27,30 +27,14 @@ const mean = numbers.reduce((a, b) => a + b) / numbers.length;
 console.log(`Mean: ${mean}`);
 ```
 
-## Other MyST Directives with Priority 105
-
-```{note}
-This note directive should be highlighted with priority 105.
-Priority 105 is high enough to override markdown but lower than code-cell.
-```
-
-```{warning}
-This warning directive should also be highlighted with priority 105.
-```
-
-```{tip}
-This tip directive demonstrates the general MyST directive pattern.
-```
-
 ## Expected Behavior
 
 With the Tree-sitter priority predicates:
 
 1. **{code-cell} directives**: Highlighted with priority 110 (highest)
-2. **Other MyST directives**: Highlighted with priority 105 (high)
-3. **Standard markdown**: Uses default priority (lower)
+2. **Standard markdown**: Uses default priority (lower)
 
-The `#set! "priority"` predicates in the Tree-sitter queries ensure MyST elements are always rendered with correct highlighting, eliminating the intermittent highlighting issues.
+The `#set! "priority"` predicate in the Tree-sitter queries ensures {code-cell} elements are always rendered with correct highlighting, eliminating the intermittent highlighting issues.
 
 ## Benefits of This Approach
 
@@ -58,3 +42,4 @@ The `#set! "priority"` predicates in the Tree-sitter queries ensure MyST element
 - **More reliable**: No complex timing or retry logic needed
 - **Standard**: Follows Tree-sitter best practices for highlight precedence
 - **Maintainable**: Clear, declarative syntax in query files
+- **Focused**: Supports {code-cell} directives specifically

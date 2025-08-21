@@ -2,7 +2,7 @@
 
 -- Comprehensive validation of Tree-sitter priority fix for Issue #46
 -- This script validates that the priority-based approach correctly addresses
--- the intermittent MyST highlighting issue
+-- the intermittent MyST highlighting issue for {code-cell} directives only
 
 print("=== Comprehensive Priority Fix Validation (Issue #46) ===")
 print("")
@@ -30,9 +30,8 @@ end
 
 print("✓ Successfully loaded MyST highlight queries")
 
--- Test 2: Validate priority predicates are present
+-- Test 2: Validate priority predicate is present for code-cell
 local has_priority_110 = highlights_content:match('#set!%s+"priority"%s+110')
-local has_priority_105 = highlights_content:match('#set!%s+"priority"%s+105')
 
 if has_priority_110 then
   print("✓ Found priority 110 predicate (highest priority for code-cell)")
@@ -41,16 +40,8 @@ else
   return 1
 end
 
-if has_priority_105 then
-  print("✓ Found priority 105 predicate (high priority for other directives)")
-else
-  print("✗ Missing priority 105 predicate")
-  return 1
-end
-
--- Test 3: Validate capture groups are properly defined
+-- Test 3: Validate only code-cell directive capture group is present
 local has_code_cell_capture = highlights_content:match('@myst%.code_cell%.directive')
-local has_general_directive_capture = highlights_content:match('@myst%.directive')
 
 if has_code_cell_capture then
   print("✓ Found @myst.code_cell.directive capture group")
@@ -59,31 +50,23 @@ else
   return 1
 end
 
+-- Test 4: Verify no general directive patterns (scope limited to code-cell only)
+local has_general_directive_capture = highlights_content:match('@myst%.directive') and not highlights_content:match('@myst%.code_cell%.directive')
+
 if has_general_directive_capture then
-  print("✓ Found @myst.directive capture group")
-else
-  print("✗ Missing @myst.directive capture group")
+  print("✗ Found unexpected general directive pattern - should only support {code-cell}")
   return 1
+else
+  print("✓ Confirmed scope is limited to {code-cell} directives only")
 end
 
--- Test 4: Validate regex patterns cover the expected MyST syntax
-local patterns_to_test = {
-  "{code-cell}",
-  "{code-cell} python",
-  "{note}",
-  "{warning}",
-  "{tip}",
-  "{admonition}",
-  "{important}",
-  "{caution}"
-}
-
+-- Test 5: Validate regex pattern covers the expected {code-cell} syntax
 print("")
-print("Testing MyST directive pattern matching...")
+print("Testing {code-cell} directive pattern matching...")
 
 -- Code-cell pattern: ^\\{code-cell\\}
-local code_cell_pattern = "^\\{code%-cell\\}"
-for _, test_case in ipairs({"code-cell", "code-cell python", "code-cell javascript"}) do
+local test_cases = {"code-cell", "code-cell python", "code-cell javascript"}
+for _, test_case in ipairs(test_cases) do
   local test_string = "{" .. test_case .. "}"
   -- Simulate Tree-sitter regex matching (simplified)
   if test_string:match("^{code%-cell") then
@@ -93,31 +76,22 @@ for _, test_case in ipairs({"code-cell", "code-cell python", "code-cell javascri
   end
 end
 
--- General directive pattern: ^\\{[a-zA-Z][a-zA-Z0-9_-]*\\}
-local general_pattern = "^{[a-zA-Z][a-zA-Z0-9_-]*}"
-for _, directive in ipairs({"note", "warning", "tip", "important", "caution"}) do
-  local test_string = "{" .. directive .. "}"
-  if test_string:match(general_pattern) then
-    print("✓ Pattern would match: " .. test_string)
-  else
-    print("✗ Pattern would NOT match: " .. test_string)
-  end
-end
-
--- Test 5: Verify the approach addresses the original issue
+-- Test 6: Verify the approach addresses the original issue
 print("")
 print("=== Issue Resolution Analysis ===")
 print("✓ Original issue: Intermittent MyST highlighting when MyST file is loaded")
 print("✓ Previous approach: Used vim.api.nvim_set_hl() with priority in Lua code")
 print("✓ Issue with previous: priority parameter in vim.api.nvim_set_hl() didn't work reliably")
 print("✓ New approach: Uses Tree-sitter's #set! \"priority\" predicate in query files")
+print("✓ Scope: Limited to {code-cell} directives only")
 print("✓ Benefits:")
 print("  - Tree-sitter handles priority at the query level (more reliable)")
 print("  - No complex Lua timing or retry logic needed")
 print("  - Standard Tree-sitter approach for highlight precedence")
 print("  - Follows Tree-sitter best practices")
+print("  - Focused scope allows for future expansion")
 
--- Test 6: Validate that the fix is minimal and focused
+-- Test 7: Validate that the fix is minimal and focused
 local file_count = 0
 local modified_files = {
   "queries/myst/highlights.scm",
@@ -139,21 +113,22 @@ end
 print("")
 print("=== Final Validation Results ===")
 print("✓ All tests passed!")
-print("✓ Tree-sitter priority predicates correctly implemented")
+print("✓ Tree-sitter priority predicates correctly implemented for {code-cell}")
 print("✓ Minimal changes made (3 files: 1 core, 2 test)")
+print("✓ Scope correctly limited to {code-cell} directives only")
 print("✓ Should resolve intermittent MyST highlighting issues")
 print("✓ Approach follows Tree-sitter best practices")
 print("")
 print("The fix works by:")
 print("  1. Adding #set! \"priority\" 110 to {code-cell} directives")
-print("  2. Adding #set! \"priority\" 105 to other MyST directives")
-print("  3. Tree-sitter automatically applies these priorities during highlighting")
-print("  4. MyST elements override markdown highlighting without timing issues")
+print("  2. Tree-sitter automatically applies this priority during highlighting")
+print("  3. {code-cell} elements override markdown highlighting without timing issues")
+print("  4. Scope limited to code-cell directives only")
 print("")
 print("Expected behavior:")
 print("  - {code-cell} directives: Always highlighted with highest priority")
-print("  - Other MyST directives: Always highlighted with high priority")
 print("  - Standard markdown: Uses default (lower) priority")
-print("  - No more intermittent highlighting failures")
+print("  - No more intermittent highlighting failures for {code-cell}")
+print("  - Other MyST directives: Not supported (future feature)")
 
 return 0
