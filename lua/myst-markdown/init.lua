@@ -117,7 +117,13 @@ function M.refresh_highlighting()
     -- Refresh MyST highlighting
     M.setup_myst_highlighting()
     
-    return true, "Tree-sitter highlighting refreshed"
+    -- Validate that tree-sitter highlighting is now actually active
+    local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+    if ts_highlight_ok and ts_highlight and ts_highlight.active and ts_highlight.active[buf] then
+      return true, "Tree-sitter highlighting activated successfully"
+    else
+      return false, "Tree-sitter highlighting failed to activate"
+    end
   else
     -- Fallback to vim syntax refresh
     pcall(function()
@@ -266,6 +272,7 @@ function M.setup_commands()
   end, { desc = 'Show quick MyST status check' })
   
   vim.api.nvim_create_user_command('MystRefresh', function()
+    local buf = vim.api.nvim_get_current_buf()
     local filetype = vim.bo.filetype
     print("MyST highlighting refresh initiated...")
     print("Current filetype: " .. filetype)
@@ -273,9 +280,20 @@ function M.setup_commands()
     local success, message = M.refresh_highlighting()
     
     if success then
-      print("MyST highlighting refreshed - " .. message)
+      print("MyST highlighting refreshed successfully - " .. message)
     else
       print("MyST highlighting refresh failed - " .. (message or "unknown error"))
+    end
+    
+    -- Report actual tree-sitter status after refresh attempt
+    local has_treesitter = pcall(require, "nvim-treesitter.configs")
+    if has_treesitter then
+      local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+      if ts_highlight_ok and ts_highlight and ts_highlight.active and ts_highlight.active[buf] then
+        print("Tree-sitter highlighter status: active")
+      else
+        print("Tree-sitter highlighter status: not active")
+      end
     end
   end, { desc = 'Force refresh MyST highlighting for current buffer' })
 end
