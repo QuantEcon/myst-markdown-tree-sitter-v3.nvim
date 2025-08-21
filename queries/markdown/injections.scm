@@ -93,21 +93,7 @@
   (#eq? @_directive "{code-cell}")
   (#set! injection.language "python"))
 
-;; Handle regular markdown ipython blocks (map to python)
-((fenced_code_block
-  (info_string
-    (language) @_lang)
-  (code_fence_content) @injection.content)
-  (#eq? @_lang "ipython")
-  (#set! injection.language "python"))
 
-;; Handle regular markdown ipython3 blocks (map to python)
-((fenced_code_block
-  (info_string
-    (language) @_lang)
-  (code_fence_content) @injection.content)
-  (#eq? @_lang "ipython3")
-  (#set! injection.language "python"))
 
 ;; Standard markdown language injection (preserve existing behavior)
 ;; This handles regular markdown code blocks like ```python

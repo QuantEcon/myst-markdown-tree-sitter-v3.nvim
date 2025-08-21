@@ -44,14 +44,11 @@ local myst_patterns = {
   '#eq? @_lang "{code-cell} ipython3"'
 }
 
--- Expected patterns for regular markdown support  
+-- Expected patterns for regular markdown support (only MyST code-cell, no regular ipython)
 local markdown_patterns = {
   '#eq? @_lang "{code-cell} ipython"',
   '#set! injection.language "python"', 
-  '#eq? @_lang "{code-cell} ipython3"',
-  -- Also need patterns for regular markdown blocks
-  'ipython',
-  'ipython3'
+  '#eq? @_lang "{code-cell} ipython3"'
 }
 
 print("\n=== Testing MyST injection patterns ===")

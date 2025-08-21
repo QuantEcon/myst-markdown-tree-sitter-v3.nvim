@@ -16,17 +16,17 @@ arr = np.array([1, 2, 3, 4, 5])
 print("IPython3 code-cell should be highlighted as Python")
 ```
 
-## Regular Markdown Code Block with ipython (should map to python highlighting)
+## Regular Markdown Code Block with ipython (no special handling)
 ```ipython
-# Regular ipython block
+# Regular ipython block - should not get special python highlighting
 import matplotlib.pyplot as plt
 plt.plot([1, 2, 3], [4, 5, 6])
-print("Regular ipython block should be highlighted as Python")
+print("Regular ipython block - treated as generic code")
 ```
 
-## Regular Markdown Code Block with ipython3 (should map to python highlighting)
+## Regular Markdown Code Block with ipython3 (no special handling)
 ```ipython3
-# Regular ipython3 block
+# Regular ipython3 block - should not get special python highlighting
 def hello_world():
     print("Hello from ipython3!")
     
