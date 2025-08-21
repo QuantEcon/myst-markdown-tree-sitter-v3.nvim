@@ -78,15 +78,20 @@ end
 
 -- Setup minimal MyST-specific highlighting
 function M.setup_myst_highlighting()
-  -- Create highlight groups for MyST directives
+  -- Create highlight groups for MyST directives with higher specificity
   -- Note: Priority parameter removed for compatibility with older Neovim versions
   vim.api.nvim_set_hl(0, "@myst.code_cell.directive", { 
     link = "Special"
   })
   
-  -- Additional MyST-specific highlights
+  -- Generic MyST directive highlighting
   vim.api.nvim_set_hl(0, "@myst.directive", { 
     link = "Special"
+  })
+  
+  -- MyST role highlighting (for {role}`target` patterns)
+  vim.api.nvim_set_hl(0, "@myst.role", {
+    link = "Function"
   })
 end
 
