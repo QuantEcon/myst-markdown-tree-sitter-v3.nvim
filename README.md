@@ -105,37 +105,11 @@ The plugin also highlights MyST-specific syntax:
 
 ## Configuration
 
-The plugin can be configured with various options:
+The plugin works automatically without configuration:
 
 ```lua
-require('myst-markdown').setup({
-  -- Note: Configuration options are currently limited to prevent plugin update issues
-  -- The plugin uses static injection queries that default to Python for code-cell blocks
-})
+require('myst-markdown').setup()
 ```
-
-### Configuration Options
-
-**Note**: As of the current version, configuration options are limited to prevent plugin update conflicts. The `default_code_cell_language` option is not currently functional.
-
-- `default_code_cell_language` (string, **currently non-functional**) - This option was temporarily disabled to fix plugin update issues where dynamic query generation caused local git changes. The plugin now uses static injection queries that default to Python for `{code-cell}` blocks without explicit language specification.
-
-**Current behavior:**
-```markdown
-```{code-cell}
-# This code will be highlighted with Python syntax (hardcoded default)
-print("Hello world")
-```
-```
-
-**Example setup (configuration currently ignored):**
-```lua
-require('myst-markdown').setup({
-  -- This setting currently has no effect, but the setup call is still required
-})
-```
-
-**Future plans**: We plan to restore configurable default languages in a future update using a method that doesn't cause plugin update conflicts.
 
 ## Testing
 

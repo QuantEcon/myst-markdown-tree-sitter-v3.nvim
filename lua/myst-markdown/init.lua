@@ -1,25 +1,10 @@
 local M = {}
 
--- Default configuration
-M.config = {
-  default_code_cell_language = "python"
-}
-
 -- Setup function for the MyST markdown plugin
 function M.setup(opts)
   opts = opts or {}
   
-  -- Merge user options with defaults (with fallback for non-vim environments)
-  if vim and vim.tbl_deep_extend then
-    M.config = vim.tbl_deep_extend("force", M.config, opts)
-  else
-    -- Simple merge for testing environments
-    for k, v in pairs(opts) do
-      M.config[k] = v
-    end
-  end
-  
-  -- Generate injection queries with configured default language
+  -- Setup injection queries
   M.setup_injection_queries()
   
   -- Set up filetype detection
@@ -76,15 +61,11 @@ function M.setup(opts)
   })
 end
 
--- Setup injection queries with configured default language
+-- Setup injection queries
 function M.setup_injection_queries()
-  -- No longer dynamically generates injection queries to avoid local git changes
-  -- that prevent plugin updates. The injection queries are now static files
-  -- in the queries/ directory that are committed to the repository.
-  --
-  -- Note: This means the default_code_cell_language configuration option
-  -- is currently not functional, but the static queries default to Python
-  -- which matches the default configuration.
+  -- The injection queries are static files in the queries/ directory
+  -- that are committed to the repository and provide language highlighting
+  -- for code-cell blocks.
 end
 
 -- Setup filetype detection
@@ -161,7 +142,6 @@ function M.debug_myst()
   print("Current filetype: " .. filetype)
   print("Tree-sitter available: " .. tostring(has_treesitter))
   print("Active parser: " .. parser_info)
-  print("Default code-cell language: " .. M.config.default_code_cell_language)
   
   -- Check if myst queries exist
   local myst_highlights = vim.treesitter.query.get("markdown", "highlights")
