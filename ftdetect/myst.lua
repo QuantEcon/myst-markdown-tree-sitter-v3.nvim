@@ -43,7 +43,7 @@ vim.api.nvim_create_autocmd("FileType", {
           if ok and myst.refresh_highlighting then
             myst.refresh_highlighting()
           end
-        end, 20)
+        end, 50) -- Increased delay for more reliable refresh
         break
       end
     end
