@@ -60,10 +60,8 @@ function M.setup_filetype_detection()
       local lines = vim.api.nvim_buf_get_lines(0, 0, 50, false) -- Check first 50 lines
       
       for _, line in ipairs(lines) do
-        -- Check for various MyST directives
-        if line:match("^```{code%-cell}") or       -- Code-cell directive
-           line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
-           line:match("^{[%w%-_]+}") then          -- Standalone MyST directives
+        -- Check for MyST code-cell directives only
+        if line:match("^```{code%-cell}") then
           vim.bo.filetype = "myst"
           -- Simple refresh
           vim.defer_fn(function()
@@ -78,20 +76,10 @@ end
 
 -- Setup minimal MyST-specific highlighting
 function M.setup_myst_highlighting()
-  -- Create highlight groups for MyST directives with higher specificity
+  -- Create highlight groups for MyST directives
   -- Note: Priority parameter removed for compatibility with older Neovim versions
   vim.api.nvim_set_hl(0, "@myst.code_cell.directive", { 
     link = "Special"
-  })
-  
-  -- Generic MyST directive highlighting
-  vim.api.nvim_set_hl(0, "@myst.directive", { 
-    link = "Special"
-  })
-  
-  -- MyST role highlighting (for {role}`target` patterns)
-  vim.api.nvim_set_hl(0, "@myst.role", {
-    link = "Function"
   })
 end
 
@@ -239,13 +227,13 @@ function M.debug_myst()
   local lines = vim.api.nvim_buf_get_lines(0, 0, 10, false)
   local has_myst_patterns = false
   for i, line in ipairs(lines) do
-    if line:match("^```{code%-cell}") or line:match("^```{[%w%-_]+}") then
-      print("MyST pattern found on line " .. i .. ": " .. line)
+    if line:match("^```{code%-cell}") then
+      print("MyST code-cell pattern found on line " .. i .. ": " .. line)
       has_myst_patterns = true
     end
   end
   if not has_myst_patterns then
-    print("No MyST patterns found in first 10 lines")
+    print("No MyST code-cell patterns found in first 10 lines")
   end
   
   print("Buffer name: " .. (vim.api.nvim_buf_get_name(buf) or "unnamed"))
@@ -315,16 +303,16 @@ function M.status_myst()
   local lines = vim.api.nvim_buf_get_lines(0, 0, 20, false)
   local has_myst_content = false
   for _, line in ipairs(lines) do
-    if line:match("^```{code%-cell}") or line:match("^```{[%w%-_]+}") then
+    if line:match("^```{code%-cell}") then
       has_myst_content = true
       break
     end
   end
   
   if has_myst_content then
-    print("✓ MyST content detected in buffer")
+    print("✓ MyST code-cell content detected in buffer")
   else
-    print("? No obvious MyST content found (check full file)")
+    print("? No MyST code-cell content found (check full file)")
   end
   
   print("==================")

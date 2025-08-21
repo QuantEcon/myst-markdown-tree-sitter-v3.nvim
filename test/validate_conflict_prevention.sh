@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "=== MyST Highlighting Conflict Prevention Validation ==="
+echo "=== MyST Code-Cell Highlighting Validation ==="
 echo
-echo "This script validates that the MyST highlighting conflict prevention fix is working."
+echo "This script validates that MyST code-cell highlighting is working properly."
 echo
 
 # Get the script directory and repo root
@@ -23,13 +23,6 @@ fi
 
 echo
 echo "2. Testing query files exist..."
-if [ -f "queries/markdown/highlights.scm" ]; then
-    echo "   ✓ Markdown highlights.scm exists (conflict prevention)"
-    echo "     Lines: $(wc -l < queries/markdown/highlights.scm)"
-else
-    echo "   ✗ Markdown highlights.scm missing"
-fi
-
 if [ -f "queries/myst/highlights.scm" ]; then
     echo "   ✓ MyST highlights.scm exists"
     echo "     Lines: $(wc -l < queries/myst/highlights.scm)"
@@ -41,7 +34,7 @@ echo
 echo "3. Testing highlight group definitions..."
 nvim --headless +"lua vim.opt.runtimepath:prepend('.')" +"lua 
 require('myst-markdown').setup()
-local groups = {'@myst.code_cell.directive', '@myst.directive', '@myst.role'}
+local groups = {'@myst.code_cell.directive'}
 for _, group in ipairs(groups) do
     local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
     if next(hl) then
@@ -53,16 +46,14 @@ end
 " +q
 
 echo
-echo "4. Key differences in this fix:"
-echo "   - Added queries/markdown/highlights.scm with conflict prevention predicates"
-echo "   - Uses (#not-match?) to exclude MyST patterns from standard markdown highlighting"
-echo "   - Enhanced queries/myst/highlights.scm for better MyST pattern matching"
-echo "   - Prevents intermittent highlighting by resolving parser conflicts"
+echo "4. Focus of this implementation:"
+echo "   - Support for {code-cell} directive highlighting only"
+echo "   - Simple and focused MyST pattern matching"
+echo "   - Preserves standard markdown highlighting for other elements"
 
 echo
-echo "5. Test files created:"
-echo "   - test/test_conflict_prevention.md (comprehensive test cases)"
-echo "   - test/test_highlight_conflict_fix.lua (automated validation)"
+echo "5. Test files:"
+echo "   - test/test_conflict_prevention.md (code-cell test cases)"
 
 echo
 echo "=== Validation Complete ==="
