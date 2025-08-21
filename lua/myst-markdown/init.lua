@@ -122,7 +122,7 @@ function M.refresh_highlighting()
       local ts_highlight = require("nvim-treesitter.highlight")
       
       -- Detach existing highlighter
-      if ts_highlight.active[buf] then
+      if ts_highlight.active and ts_highlight.active[buf] then
         ts_highlight.detach(buf)
       end
       
@@ -232,7 +232,9 @@ function M.debug_myst()
   if has_treesitter then
     pcall(function()
       local ts_highlight = require("nvim-treesitter.highlight")
-      ts_highlighter = ts_highlight.active[buf]
+      if ts_highlight.active then
+        ts_highlighter = ts_highlight.active[buf]
+      end
       if ts_highlighter then
         highlighter_info = "active"
         -- Try to get more info about the highlighter
@@ -305,7 +307,7 @@ function M.setup_commands()
       local has_treesitter = pcall(require, "nvim-treesitter.configs")
       if has_treesitter then
         local ts_highlight = require("nvim-treesitter.highlight")
-        local highlighter_active = ts_highlight.active[buf] ~= nil
+        local highlighter_active = ts_highlight.active and ts_highlight.active[buf] ~= nil
         print("MyST highlighting refreshed - Tree-sitter active: " .. tostring(highlighter_active))
       else
         print("MyST highlighting refreshed - Using fallback syntax highlighting")
