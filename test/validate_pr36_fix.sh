@@ -34,9 +34,9 @@ fi
 
 echo ""
 echo "Checking for complex retry logic that could cause cascading calls..."
-retry_count=$(grep -c "try again" lua/myst-markdown/init.lua ftdetect/myst.lua || echo "0")
-if [ "$retry_count" -gt 1 ]; then
-    echo "❌ Found complex retry logic that could cause cascading calls"
+retry_files=$(find . -name "*.lua" -exec grep -l "try again" {} \; 2>/dev/null | wc -l)
+if [ "$retry_files" -gt 1 ]; then
+    echo "❌ Found complex retry logic in multiple files that could cause cascading calls"
     exit 1
 else
     echo "✅ Simplified retry logic to prevent cascading calls"
