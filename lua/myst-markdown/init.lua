@@ -100,6 +100,10 @@ function M.setup_filetype_detection()
            line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
            line:match("^{[%w%-_]+}") then          -- Standalone MyST directives
           vim.bo.filetype = "myst"
+          -- Force refresh highlighting after filetype change
+          vim.defer_fn(function()
+            M.refresh_highlighting()
+          end, 20)
           return
         end
       end
@@ -113,15 +117,50 @@ function M.setup_myst_highlighting()
   vim.api.nvim_set_hl(0, "@myst.code_cell.directive", { link = "Special" })
 end
 
+-- Force refresh tree-sitter highlighting for current buffer
+function M.refresh_highlighting()
+  local buf = vim.api.nvim_get_current_buf()
+  local filetype = vim.bo.filetype
+  
+  -- Try to refresh tree-sitter highlighting
+  local has_treesitter = pcall(require, "nvim-treesitter.configs")
+  if has_treesitter then
+    -- Stop current tree-sitter highlighting
+    pcall(function()
+      if vim.treesitter.stop then
+        vim.treesitter.stop(buf)
+      end
+    end)
+    
+    -- Small delay to ensure clean stop
+    vim.defer_fn(function()
+      -- Restart tree-sitter highlighting with appropriate parser
+      local parser_lang = (filetype == "myst") and "markdown" or filetype
+      pcall(function()
+        if vim.treesitter.start then
+          vim.treesitter.start(buf, parser_lang)
+        end
+      end)
+    end, 10)
+  else
+    -- Fallback to vim syntax refresh
+    vim.cmd("syntax sync fromstart")
+  end
+end
+
 -- Manual command to enable MyST highlighting for current buffer
 function M.enable_myst()
   vim.bo.filetype = "myst"
+  -- Force refresh tree-sitter highlighting
+  M.refresh_highlighting()
   print("MyST highlighting enabled for current buffer")
 end
 
 -- Manual command to disable MyST highlighting for current buffer
 function M.disable_myst()
   vim.bo.filetype = "markdown"
+  -- Force refresh tree-sitter highlighting
+  M.refresh_highlighting()
   print("MyST highlighting disabled for current buffer (reverted to markdown)")
 end
 
@@ -149,6 +188,16 @@ function M.debug_myst()
   print("Myst highlight queries loaded: " .. tostring(myst_highlights ~= nil))
   print("Myst injection queries loaded: " .. tostring(myst_injections ~= nil))
   
+  -- Check tree-sitter highlighting status
+  local ts_highlighter = nil
+  if has_treesitter then
+    pcall(function()
+      local ts_highlight = require("nvim-treesitter.highlight")
+      ts_highlighter = ts_highlight.active[buf]
+    end)
+  end
+  print("Tree-sitter highlighter active: " .. tostring(ts_highlighter ~= nil))
+  
   -- Check first few lines for MyST patterns
   local lines = vim.api.nvim_buf_get_lines(0, 0, 10, false)
   local has_myst_patterns = false
@@ -161,6 +210,9 @@ function M.debug_myst()
   if not has_myst_patterns then
     print("No MyST patterns found in first 10 lines")
   end
+  
+  print("Buffer name: " .. (vim.api.nvim_buf_get_name(buf) or "unnamed"))
+  print("=== End Debug Info ===")
 end
 
 -- Setup commands
@@ -176,6 +228,11 @@ function M.setup_commands()
   vim.api.nvim_create_user_command('MystDebug', function()
     M.debug_myst()
   end, { desc = 'Show MyST debugging information' })
+  
+  vim.api.nvim_create_user_command('MystRefresh', function()
+    M.refresh_highlighting()
+    print("MyST highlighting refreshed")
+  end, { desc = 'Force refresh MyST highlighting for current buffer' })
 end
 
 return M

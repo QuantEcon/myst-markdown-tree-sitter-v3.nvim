@@ -36,6 +36,14 @@ vim.api.nvim_create_autocmd("FileType", {
          line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
          line:match("^{[%w%-_]+}") then          -- Standalone MyST directives
         vim.bo.filetype = "myst"
+        -- Trigger highlighting refresh after small delay
+        vim.defer_fn(function()
+          -- Try to call refresh function if plugin is loaded
+          local ok, myst = pcall(require, 'myst-markdown')
+          if ok and myst.refresh_highlighting then
+            myst.refresh_highlighting()
+          end
+        end, 20)
         break
       end
     end
