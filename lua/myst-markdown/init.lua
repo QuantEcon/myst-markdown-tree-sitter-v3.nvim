@@ -113,23 +113,34 @@ function M.refresh_highlighting()
       parsers.filetype_to_parsername.myst = "markdown"
     end
     
-    -- Try a more direct approach: use the TSBufEnable command equivalent
-    local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
-    if ts_highlight_ok and ts_highlight then
-      -- Method 1: Detach and reattach using the highlight module
-      pcall(function()
-        -- Clean detach
-        if ts_highlight.detach then
-          ts_highlight.detach(buf)
-        end
-        -- Clean attach with the correct parser language
-        if ts_highlight.attach then
-          ts_highlight.attach(buf, parser_lang)
-        end
-      end)
+    -- Method 1: Use the TSBufEnable command programmatically (most reliable)
+    local enable_success = pcall(function()
+      vim.cmd('TSBufEnable highlight')
+    end)
+    
+    -- Method 2: If TSBufEnable failed, try manual highlight module approach
+    if not enable_success then
+      local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+      if ts_highlight_ok and ts_highlight then
+        pcall(function()
+          -- Clean detach first
+          if ts_highlight.detach then
+            ts_highlight.detach(buf)
+          end
+          -- Clean attach with the correct parser language
+          if ts_highlight.attach then
+            ts_highlight.attach(buf, parser_lang)
+          end
+        end)
+      end
     end
     
-    -- Method 2: Try using the configs module if method 1 didn't work
+    -- Method 3: Try using vim.treesitter.start as a fallback
+    pcall(function()
+      vim.treesitter.start(buf, parser_lang)
+    end)
+    
+    -- Method 4: Try using the configs module enable function
     local ts_configs_ok, ts_configs = pcall(require, "nvim-treesitter.configs")
     if ts_configs_ok then
       pcall(function()
@@ -145,7 +156,7 @@ function M.refresh_highlighting()
     M.setup_myst_highlighting()
     
     -- Wait a brief moment for the highlighting system to activate
-    vim.wait(50, function() return false end)
+    vim.wait(100, function() return false end)
     
     -- Proper validation: check if Tree-sitter highlighting is actually active
     local validation_success = false
@@ -160,14 +171,42 @@ function M.refresh_highlighting()
       end
     end)
     
-    -- Secondary validation: check if parser is available (for debugging info)
+    -- If highlighting is still not active, provide more detailed diagnostics
     if not validation_success then
+      local diagnostic_messages = {}
+      
+      -- Check if parser is available
       pcall(function()
         local parser = vim.treesitter.get_parser(buf, parser_lang)
         if parser then
-          validation_message = "Parser available but highlighting not active - try :TSBufEnable highlight"
+          table.insert(diagnostic_messages, "parser available")
+        else
+          table.insert(diagnostic_messages, "parser not available")
         end
       end)
+      
+      -- Check if markdown parser is installed
+      local has_markdown_parser = pcall(function()
+        vim.treesitter.language.require_language("markdown")
+      end)
+      if not has_markdown_parser then
+        table.insert(diagnostic_messages, "markdown parser not installed - run :TSInstall markdown")
+      end
+      
+      -- Check if nvim-treesitter highlight module is properly configured
+      local ts_configs_ok, ts_configs = pcall(require, "nvim-treesitter.configs")
+      if ts_configs_ok then
+        local highlight_config = ts_configs.get_module("highlight")
+        if not highlight_config or not highlight_config.enable then
+          table.insert(diagnostic_messages, "nvim-treesitter highlight module not enabled")
+        end
+      end
+      
+      if #diagnostic_messages > 0 then
+        validation_message = "Highlighting activation failed: " .. table.concat(diagnostic_messages, ", ")
+      else
+        validation_message = "Highlighting activation failed for unknown reason"
+      end
     end
     
     return validation_success, validation_message
