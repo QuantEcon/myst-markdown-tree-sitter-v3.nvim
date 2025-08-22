@@ -38,6 +38,55 @@ use {
 }
 ```
 
+### Testing from a Specific Branch
+
+To test unreleased changes from a specific branch (useful for testing fixes before they're merged):
+
+#### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
+
+```lua
+use {
+  'QuantEcon/myst-markdown-tree-sitter.nvim',
+  branch = 'branch-name',  -- Replace with the actual branch name
+  requires = {'nvim-treesitter/nvim-treesitter'},
+  config = function()
+    require('myst-markdown').setup()
+  end
+}
+```
+
+#### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
+
+```lua
+{
+  'QuantEcon/myst-markdown-tree-sitter.nvim',
+  branch = 'branch-name',  -- Replace with the actual branch name
+  dependencies = {'nvim-treesitter/nvim-treesitter'},
+  config = function()
+    require('myst-markdown').setup()
+  end
+}
+```
+
+#### Testing Local Changes
+
+For testing local modifications:
+
+```lua
+{
+  dir = '/path/to/local/myst-markdown-tree-sitter.nvim',
+  dependencies = {'nvim-treesitter/nvim-treesitter'},
+  config = function()
+    require('myst-markdown').setup()
+  end
+}
+```
+
+**Note:** After changing branches or updating the plugin, you may need to:
+1. Restart Neovim
+2. Run `:PackerSync` (for packer) or `:Lazy sync` (for lazy.nvim)
+3. Run `:TSUpdate` to ensure tree-sitter parsers are up to date
+
 ## Requirements
 
 - Neovim >= 0.8.0

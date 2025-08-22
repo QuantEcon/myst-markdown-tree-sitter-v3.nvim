@@ -113,53 +113,79 @@ function M.refresh_highlighting()
       parsers.filetype_to_parsername.myst = "markdown"
     end
     
-    -- Try using nvim-treesitter's highlight module for proper management
+    -- Method 1: Try the most reliable approach using nvim-treesitter configs
+    local ts_configs_ok, ts_configs = pcall(require, "nvim-treesitter.configs")
+    if ts_configs_ok then
+      -- Force a clean restart by using the configs module
+      pcall(function()
+        local config = ts_configs.get_module("highlight")
+        if config and config.disable then
+          -- Temporarily disable highlighting
+          config.disable(parser_lang, buf)
+          
+          -- Re-enable highlighting after a brief moment
+          vim.schedule(function()
+            config.enable(parser_lang, buf)
+            M.setup_myst_highlighting()
+          end)
+        end
+      end)
+    end
+    
+    -- Method 2: Use nvim-treesitter highlight module as fallback
     local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
     if ts_highlight_ok and ts_highlight then
-      -- First detach any existing highlighter
       pcall(function()
+        -- Stop any existing highlighter
         if ts_highlight.detach then
           ts_highlight.detach(buf)
         end
-      end)
-      
-      -- Wait a moment for detach to complete
-      vim.wait(100, function() return false end) -- Wait 100ms
-      
-      -- Attach with the correct parser language
-      pcall(function()
+        
+        -- Start highlighting with correct language
         if ts_highlight.attach then
           ts_highlight.attach(buf, parser_lang)
         end
       end)
-      
-      -- Wait for attachment to complete
-      vim.wait(100, function() return false end) -- Wait 100ms
-      
-    else
-      -- Fallback to low-level API if nvim-treesitter.highlight not available
+    end
+    
+    -- Method 3: Low-level vim.treesitter API as final fallback
+    pcall(function()
+      if vim.treesitter.stop then
+        vim.treesitter.stop(buf)
+      end
+      if vim.treesitter.start then
+        vim.treesitter.start(buf, parser_lang)
+      end
+    end)
+    
+    -- Always refresh MyST highlighting
+    M.setup_myst_highlighting()
+    
+    -- Improved validation: check if we can get a parser for the buffer
+    local validation_success = false
+    local validation_message = "Tree-sitter highlighting failed to activate"
+    
+    -- Check if parser is available and working
+    pcall(function()
+      local parser = vim.treesitter.get_parser(buf, parser_lang)
+      if parser then
+        validation_success = true
+        validation_message = "Tree-sitter highlighting activated successfully"
+      end
+    end)
+    
+    -- Additional check using highlight module if available
+    if not validation_success then
       pcall(function()
-        if vim.treesitter.stop then
-          vim.treesitter.stop(buf)
+        local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+        if ts_highlight_ok and ts_highlight and ts_highlight.active and ts_highlight.active[buf] then
+          validation_success = true
+          validation_message = "Tree-sitter highlighting activated via highlight module"
         end
-        vim.wait(50, function() return false end) -- Wait 50ms
-        if vim.treesitter.start then
-          vim.treesitter.start(buf, parser_lang)
-        end
-        vim.wait(100, function() return false end) -- Wait 100ms
       end)
     end
     
-    -- Refresh MyST highlighting
-    M.setup_myst_highlighting()
-    
-    -- Validate that tree-sitter highlighting is now actually active
-    local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
-    if ts_highlight_ok and ts_highlight and ts_highlight.active and ts_highlight.active[buf] then
-      return true, "Tree-sitter highlighting activated successfully"
-    else
-      return false, "Tree-sitter highlighting failed to activate"
-    end
+    return validation_success, validation_message
   else
     -- Fallback to vim syntax refresh
     pcall(function()
