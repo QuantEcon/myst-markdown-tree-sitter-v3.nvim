@@ -13,18 +13,6 @@ This plugin provides syntax highlighting and filetype detection for [MyST (Marke
 
 ## Installation
 
-### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
-
-```lua
-use {
-  'QuantEcon/myst-markdown-tree-sitter.nvim',
-  requires = {'nvim-treesitter/nvim-treesitter'},
-  config = function()
-    require('myst-markdown').setup()
-  end
-}
-```
-
 ### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
@@ -46,16 +34,11 @@ use {
 - `priority = 1000` - Ensures this plugin loads after other markdown plugins to prevent highlighting conflicts
 - `config` function - Runs the setup after treesitter is properly loaded
 
-### Testing from a Specific Branch
-
-To test unreleased changes from a specific branch (useful for testing fixes before they're merged):
-
-#### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
+### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
 ```lua
 use {
   'QuantEcon/myst-markdown-tree-sitter.nvim',
-  branch = 'branch-name',  -- Replace with the actual branch name
   requires = {'nvim-treesitter/nvim-treesitter'},
   config = function()
     require('myst-markdown').setup()
@@ -63,30 +46,16 @@ use {
 }
 ```
 
+### Testing from a Specific Branch
+
+To test unreleased changes from a specific branch (useful for testing fixes before they're merged):
+
 #### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
 {
   'QuantEcon/myst-markdown-tree-sitter.nvim',
   branch = 'branch-name',  -- Replace with the actual branch name
-  dependencies = {'nvim-treesitter/nvim-treesitter'},
-  ft = {"markdown", "myst"},
-  config = function()
-    -- Your MyST setup here
-    -- Ensure this runs after treesitter is loaded
-    require('myst-markdown').setup()
-  end,
-  priority = 1000, -- Load after other markdown plugins
-}
-```
-
-#### Testing Local Changes
-
-For testing local modifications:
-
-```lua
-{
-  dir = '/path/to/local/myst-markdown-tree-sitter.nvim',
   dependencies = {'nvim-treesitter/nvim-treesitter'},
   ft = {"markdown", "myst"},
   config = function()
