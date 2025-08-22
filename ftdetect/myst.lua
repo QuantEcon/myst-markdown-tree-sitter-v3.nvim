@@ -9,10 +9,9 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
     local is_myst = false
     
     for _, line in ipairs(lines) do
-      -- Check for various MyST directives
-      if line:match("^```{code%-cell}") or       -- Code-cell directive
-         line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
-         line:match("^{[%w%-_]+}") then          -- Standalone MyST directives
+      -- Only detect as MyST if file contains code-cell directives
+      -- This focuses support specifically on code-cell directives as requested
+      if line:match("^```{code%-cell}") then       -- Code-cell directive only
         is_myst = true
         break
       end
@@ -31,10 +30,9 @@ vim.api.nvim_create_autocmd("FileType", {
     local lines = vim.api.nvim_buf_get_lines(0, 0, 50, false) -- Check first 50 lines
     
     for _, line in ipairs(lines) do
-      -- Check for various MyST directives
-      if line:match("^```{code%-cell}") or       -- Code-cell directive
-         line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
-         line:match("^{[%w%-_]+}") then          -- Standalone MyST directives
+      -- Only detect as MyST if file contains code-cell directives
+      -- This focuses support specifically on code-cell directives as requested
+      if line:match("^```{code%-cell}") then       -- Code-cell directive only
         vim.bo.filetype = "myst"
         -- Simple refresh without complex timing
         vim.defer_fn(function()
