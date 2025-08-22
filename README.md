@@ -32,11 +32,20 @@ use {
 {
   'QuantEcon/myst-markdown-tree-sitter.nvim',
   dependencies = {'nvim-treesitter/nvim-treesitter'},
+  ft = {"markdown", "myst"},
   config = function()
+    -- Your MyST setup here
+    -- Ensure this runs after treesitter is loaded
     require('myst-markdown').setup()
-  end
+  end,
+  priority = 1000, -- Load after other markdown plugins
 }
 ```
+
+**Configuration Options Explained:**
+- `ft = {"markdown", "myst"}` - Lazy loads the plugin only when opening markdown or MyST files, improving startup performance
+- `priority = 1000` - Ensures this plugin loads after other markdown plugins to prevent highlighting conflicts
+- `config` function - Runs the setup after treesitter is properly loaded
 
 ### Testing from a Specific Branch
 
@@ -62,9 +71,13 @@ use {
   'QuantEcon/myst-markdown-tree-sitter.nvim',
   branch = 'branch-name',  -- Replace with the actual branch name
   dependencies = {'nvim-treesitter/nvim-treesitter'},
+  ft = {"markdown", "myst"},
   config = function()
+    -- Your MyST setup here
+    -- Ensure this runs after treesitter is loaded
     require('myst-markdown').setup()
-  end
+  end,
+  priority = 1000, -- Load after other markdown plugins
 }
 ```
 
@@ -76,9 +89,13 @@ For testing local modifications:
 {
   dir = '/path/to/local/myst-markdown-tree-sitter.nvim',
   dependencies = {'nvim-treesitter/nvim-treesitter'},
+  ft = {"markdown", "myst"},
   config = function()
+    -- Your MyST setup here
+    -- Ensure this runs after treesitter is loaded
     require('myst-markdown').setup()
-  end
+  end,
+  priority = 1000, -- Load after other markdown plugins
 }
 ```
 
