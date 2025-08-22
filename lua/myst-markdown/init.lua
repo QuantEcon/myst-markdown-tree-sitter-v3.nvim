@@ -61,9 +61,9 @@ function M.setup_filetype_detection()
       
       for _, line in ipairs(lines) do
         -- Check for various MyST directives
-        if line:match("^```{code%-cell}") or       -- Code-cell directive
-           line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
-           line:match("^{[%w%-_]+}") then          -- Standalone MyST directives
+        if line:match("^```{code%-cell}") or       -- Code-cell directive (supported)
+           line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc. (detected but not highlighted)
+           line:match("^{[%w%-_]+}") then          -- Standalone MyST directives (detected but not highlighted)
           vim.bo.filetype = "myst"
           -- Simple MyST highlighting setup
           vim.defer_fn(function()
@@ -198,6 +198,8 @@ function M.debug_myst()
   local lines = vim.api.nvim_buf_get_lines(0, 0, 10, false)
   local has_myst_patterns = false
   for i, line in ipairs(lines) do
+    -- Note: Currently only {code-cell} directives are highlighted,
+    -- but other MyST directives are detected for filetype identification
     if line:match("^```{code%-cell}") or line:match("^```{[%w%-_]+}") then
       print("MyST pattern found on line " .. i .. ": " .. line)
       has_myst_patterns = true

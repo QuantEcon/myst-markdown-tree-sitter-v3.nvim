@@ -7,8 +7,7 @@ This plugin provides syntax highlighting and filetype detection for [MyST (Marke
 ## Features
 
 - **Automatic filetype detection** for MyST markdown files
-- **Code-cell directive highlighting** with language-specific syntax highlighting
-- **MyST directive and role highlighting** 
+- **Code-cell directive highlighting** with language-specific syntax highlighting for `{code-cell}` directives
 - **Tree-sitter integration** for robust parsing
 - **Markdown compatibility** - works alongside existing markdown features
 
@@ -161,13 +160,9 @@ print("Default language is Python")
 
 For other languages, ensure you have the corresponding tree-sitter parser installed with `:TSInstall <language>`.
 
-### MyST Directives and Roles
+### MyST Code-Cell Directives
 
-The plugin also highlights MyST-specific syntax:
-
-- Directives: `{note}`, `{warning}`, etc.
-- Roles: `{doc}`, `{ref}`, etc.
-- Block directives: `:::{directive_name}`
+The plugin provides syntax highlighting for MyST `{code-cell}` directives with language-specific syntax highlighting support.
 
 ## Configuration
 
