@@ -65,9 +65,9 @@ function M.setup_filetype_detection()
            line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
            line:match("^{[%w%-_]+}") then          -- Standalone MyST directives
           vim.bo.filetype = "myst"
-          -- Simple refresh
+          -- Simple MyST highlighting setup
           vim.defer_fn(function()
-            M.refresh_highlighting()
+            M.setup_myst_highlighting()
           end, 50)
           return
         end
@@ -90,96 +90,19 @@ function M.setup_myst_highlighting()
   })
 end
 
--- Simple refresh highlighting function
-function M.refresh_highlighting()
-  local buf = vim.api.nvim_get_current_buf()
-  local filetype = vim.bo.filetype
-  
-  if not vim.api.nvim_buf_is_valid(buf) then
-    return false, "Buffer is not valid"
-  end
-  
-  -- Try to restart tree-sitter highlighting
-  local has_treesitter = pcall(require, "nvim-treesitter.configs")
-  if has_treesitter then
-    local parser_lang = (filetype == "myst") and "markdown" or filetype
-    
-    -- Set up parser mapping for myst filetype (crucial step that was missing)
-    if filetype == "myst" then
-      local parsers = require("nvim-treesitter.parsers")
-      if not parsers.filetype_to_parsername then
-        parsers.filetype_to_parsername = {}
-      end
-      parsers.filetype_to_parsername.myst = "markdown"
-    end
-    
-    -- Try using nvim-treesitter's highlight module for proper management
-    local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
-    if ts_highlight_ok and ts_highlight then
-      -- First detach any existing highlighter
-      pcall(function()
-        if ts_highlight.detach then
-          ts_highlight.detach(buf)
-        end
-      end)
-      
-      -- Wait a moment for detach to complete
-      vim.wait(100, function() return false end) -- Wait 100ms
-      
-      -- Attach with the correct parser language
-      pcall(function()
-        if ts_highlight.attach then
-          ts_highlight.attach(buf, parser_lang)
-        end
-      end)
-      
-      -- Wait for attachment to complete
-      vim.wait(100, function() return false end) -- Wait 100ms
-      
-    else
-      -- Fallback to low-level API if nvim-treesitter.highlight not available
-      pcall(function()
-        if vim.treesitter.stop then
-          vim.treesitter.stop(buf)
-        end
-        vim.wait(50, function() return false end) -- Wait 50ms
-        if vim.treesitter.start then
-          vim.treesitter.start(buf, parser_lang)
-        end
-        vim.wait(100, function() return false end) -- Wait 100ms
-      end)
-    end
-    
-    -- Refresh MyST highlighting
-    M.setup_myst_highlighting()
-    
-    -- Validate that tree-sitter highlighting is now actually active
-    local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
-    if ts_highlight_ok and ts_highlight and ts_highlight.active and ts_highlight.active[buf] then
-      return true, "Tree-sitter highlighting activated successfully"
-    else
-      return false, "Tree-sitter highlighting failed to activate"
-    end
-  else
-    -- Fallback to vim syntax refresh
-    pcall(function()
-      vim.cmd("syntax sync fromstart")
-    end)
-    return true, "Using fallback syntax highlighting"
-  end
-end
+
 
 -- Manual command to enable MyST highlighting for current buffer
 function M.enable_myst()
   vim.bo.filetype = "myst"
-  M.refresh_highlighting()
+  M.setup_myst_highlighting()
   print("MyST highlighting enabled for current buffer")
 end
 
 -- Manual command to disable MyST highlighting for current buffer
 function M.disable_myst()
   vim.bo.filetype = "markdown"
-  M.refresh_highlighting()
+  M.setup_myst_highlighting()
   print("MyST highlighting disabled for current buffer (reverted to markdown)")
 end
 
@@ -250,7 +173,6 @@ function M.debug_myst()
     -- Provide diagnostic suggestions
     print("\nDiagnostic suggestions:")
     if filetype == "myst" then
-      print("  - Try :MystRefresh to force re-initialization")
       print("  - Try :MystDisable followed by :MystEnable")
     else
       print("  - File may not be detected as MyST. Try :MystEnable")
@@ -307,31 +229,7 @@ function M.setup_commands()
     M.status_myst()
   end, { desc = 'Show quick MyST status check' })
   
-  vim.api.nvim_create_user_command('MystRefresh', function()
-    local buf = vim.api.nvim_get_current_buf()
-    local filetype = vim.bo.filetype
-    print("MyST highlighting refresh initiated...")
-    print("Current filetype: " .. filetype)
-    
-    local success, message = M.refresh_highlighting()
-    
-    if success then
-      print("MyST highlighting refreshed successfully - " .. message)
-    else
-      print("MyST highlighting refresh failed - " .. (message or "unknown error"))
-    end
-    
-    -- Report actual tree-sitter status after refresh attempt
-    local has_treesitter = pcall(require, "nvim-treesitter.configs")
-    if has_treesitter then
-      local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
-      if ts_highlight_ok and ts_highlight and ts_highlight.active and ts_highlight.active[buf] then
-        print("Tree-sitter highlighter status: active")
-      else
-        print("Tree-sitter highlighter status: not active")
-      end
-    end
-  end, { desc = 'Force refresh MyST highlighting for current buffer' })
+
 end
 
 -- Quick status check for MyST highlighting
@@ -354,7 +252,7 @@ function M.status_myst()
     if ts_highlight_ok and ts_highlight and ts_highlight.active and ts_highlight.active[buf] then
       print("✓ Tree-sitter highlighting active")
     else
-      print("✗ Tree-sitter highlighting not active (use :MystRefresh)")
+      print("✗ Tree-sitter highlighting not active")
     end
   else
     print("✗ nvim-treesitter not available")
