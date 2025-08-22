@@ -86,9 +86,8 @@ The plugin automatically detects MyST markdown files based on content patterns a
 
 For debugging and manual control, the plugin provides these commands:
 
-- `:MystEnable` - Enable MyST highlighting for the current buffer
-- `:MystDisable` - Disable MyST highlighting for the current buffer (reverts to markdown)
 - `:MystDebug` - Show debugging information about MyST state and tree-sitter queries
+- `:MystStatus` - Quick health check of MyST highlighting status
 
 These commands are useful for debugging highlighting issues and testing MyST functionality.
 
@@ -145,8 +144,6 @@ require('myst-markdown').setup()
 
 The plugin provides several commands for troubleshooting and manual control:
 
-- `:MystEnable` - Force enable MyST highlighting for current buffer
-- `:MystDisable` - Disable MyST highlighting (revert to markdown)
 - `:MystStatus` - Quick health check of MyST highlighting status
 - `:MystDebug` - Detailed debugging information with diagnostic suggestions
 
@@ -155,8 +152,9 @@ The plugin provides several commands for troubleshooting and manual control:
 If MyST highlighting is not working:
 
 1. Run `:MystStatus` for a quick health check
-2. If file is not detected as MyST, try `:MystEnable`
-3. For detailed diagnosis, run `:MystDebug`
+2. For detailed diagnosis, run `:MystDebug`
+3. Ensure the file contains MyST directives like `{code-cell}`
+4. Verify nvim-treesitter is installed and markdown parser is available
 
 ## Testing
 

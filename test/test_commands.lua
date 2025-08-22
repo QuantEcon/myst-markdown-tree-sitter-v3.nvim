@@ -15,24 +15,17 @@ else
 end
 
 -- Test 2: Manual command functions exist
-if type(myst_module.enable_myst) == 'function' then
-  print("✓ enable_myst function exists")
-else
-  print("✗ enable_myst function not found")
-  return 1
-end
-
-if type(myst_module.disable_myst) == 'function' then
-  print("✓ disable_myst function exists")
-else
-  print("✗ disable_myst function not found")
-  return 1
-end
-
 if type(myst_module.debug_myst) == 'function' then
   print("✓ debug_myst function exists")
 else
   print("✗ debug_myst function not found")
+  return 1
+end
+
+if type(myst_module.status_myst) == 'function' then
+  print("✓ status_myst function exists")
+else
+  print("✗ status_myst function not found")
   return 1
 end
 
