@@ -63,24 +63,24 @@ else
   print("? Message still contains validation logic")
 end
 
--- Test 3: Test simple enable/disable
-print("\n=== Testing Simplified Enable/Disable ===")
-print("Testing MystEnable:")
-myst_module.enable_myst()
-
-print("Testing MystDisable:")
-myst_module.disable_myst()
-
--- Test 4: Test command setup
+-- Test 3: Test command setup
 print("\n=== Testing Command Setup ===")
 myst_module.setup_commands()
+
+print("\n=== Testing Debug Commands ===")
+print("Testing MystStatus:")
+myst_module.status_myst()
+
+print("Testing MystDebug:")
+myst_module.debug_myst()
 
 print("\n=== Compatibility Fix Summary ===")
 print("✓ Removed complex race condition retry logic")
 print("✓ Removed priority parameter for Neovim compatibility")
 print("✓ Simplified refresh function without validation loops")
-print("✓ Streamlined enable/disable commands")
+print("✓ Streamlined debug and status commands")
 print("✓ Reduced timing delays from 150ms to 50ms")
+print("✓ Removed unused manual enable/disable commands")
 print("\nThe simplified approach should work across more Neovim versions!")
 
 return 0

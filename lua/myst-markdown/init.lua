@@ -92,19 +92,7 @@ end
 
 
 
--- Manual command to enable MyST highlighting for current buffer
-function M.enable_myst()
-  vim.bo.filetype = "myst"
-  M.setup_myst_highlighting()
-  print("MyST highlighting enabled for current buffer")
-end
 
--- Manual command to disable MyST highlighting for current buffer
-function M.disable_myst()
-  vim.bo.filetype = "markdown"
-  M.setup_myst_highlighting()
-  print("MyST highlighting disabled for current buffer (reverted to markdown)")
-end
 
 -- Debug function to show current MyST state
 function M.debug_myst()
@@ -172,10 +160,9 @@ function M.debug_myst()
     
     -- Provide diagnostic suggestions
     print("\nDiagnostic suggestions:")
-    if filetype == "myst" then
-      print("  - Try :MystDisable followed by :MystEnable")
-    else
-      print("  - File may not be detected as MyST. Try :MystEnable")
+    if filetype ~= "myst" then
+      print("  - File may not be detected as MyST. Check for MyST directives like {code-cell}")
+      print("  - Ensure file has .md extension and contains MyST content")
     end
     print("  - Ensure nvim-treesitter is properly installed")
     print("  - Ensure markdown parser is installed with :TSInstall markdown")
@@ -215,14 +202,6 @@ end
 
 -- Setup commands
 function M.setup_commands()
-  vim.api.nvim_create_user_command('MystEnable', function()
-    M.enable_myst()
-  end, { desc = 'Enable MyST highlighting for current buffer' })
-  
-  vim.api.nvim_create_user_command('MystDisable', function()
-    M.disable_myst()
-  end, { desc = 'Disable MyST highlighting for current buffer' })
-  
   vim.api.nvim_create_user_command('MystDebug', function()
     M.debug_myst()
   end, { desc = 'Show MyST debugging information' })
@@ -230,7 +209,6 @@ function M.setup_commands()
   vim.api.nvim_create_user_command('MystStatus', function()
     M.status_myst()
   end, { desc = 'Show quick MyST status check' })
-  
 
 end
 
@@ -246,7 +224,7 @@ function M.status_myst()
   if filetype == "myst" then
     print("✓ File detected as MyST")
   else
-    print("✗ File not detected as MyST (use :MystEnable to force)")
+    print("✗ File not detected as MyST")
   end
   
   if has_treesitter then

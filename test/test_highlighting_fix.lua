@@ -14,33 +14,26 @@ else
   return 1
 end
 
--- Test 2: New refresh function exists
-if type(myst_module.refresh_highlighting) == 'function' then
-  print("✓ refresh_highlighting function exists")
+-- Test 2: Core setup functions exist
+if type(myst_module.setup_myst_highlighting) == 'function' then
+  print("✓ setup_myst_highlighting function exists")
 else
-  print("✗ refresh_highlighting function not found")
+  print("✗ setup_myst_highlighting function not found")
   return 1
 end
 
 -- Test 3: Enhanced manual command functions exist
-if type(myst_module.enable_myst) == 'function' then
-  print("✓ enable_myst function exists")
-else
-  print("✗ enable_myst function not found")
-  return 1
-end
-
-if type(myst_module.disable_myst) == 'function' then
-  print("✓ disable_myst function exists")
-else
-  print("✗ disable_myst function not found")
-  return 1
-end
-
 if type(myst_module.debug_myst) == 'function' then
   print("✓ debug_myst function exists")
 else
   print("✗ debug_myst function not found")
+  return 1
+end
+
+if type(myst_module.status_myst) == 'function' then
+  print("✓ status_myst function exists")
+else
+  print("✗ status_myst function not found")
   return 1
 end
 
@@ -54,9 +47,8 @@ end
 
 print("\nAll highlighting fix tests completed successfully!")
 print("The fix includes:")
-print("  - Explicit tree-sitter highlighting refresh when changing filetypes")
-print("  - :MystRefresh command for manual highlighting refresh")
-print("  - Enhanced debug output")
-print("  - Proper cleanup and restart of tree-sitter highlighting")
+print("  - Debug commands for troubleshooting MyST highlighting")
+print("  - Status commands for checking MyST detection")
+print("  - Automatic filetype detection based on MyST content")
 
 return 0
