@@ -7,4 +7,4 @@
 (fenced_code_block
   (info_string) @_directive
   (#match? @_directive "^\\{code-cell\\}")
-  (#no-match!))
+  (#set! "highlight.disable"))

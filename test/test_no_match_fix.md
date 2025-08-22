@@ -1,6 +1,6 @@
-# Test MyST No-Match Fix
+# Test MyST Tree-sitter Compatible Highlighting Fix
 
-This test file validates that the `#no-match` fix prevents markdown from highlighting MyST {code-cell} directives.
+This test file validates that the tree-sitter compatible highlighting disable fix prevents markdown from highlighting MyST {code-cell} directives.
 
 ## Standard Markdown Code Block
 This should still have normal markdown highlighting:
@@ -13,7 +13,7 @@ print(df)
 ```
 
 ## MyST Code-Cell Directive  
-This should NOT be highlighted by markdown (due to #no-match) and should be handled by MyST:
+This should NOT be highlighted by markdown (due to #set! highlight.disable) and should be handled by MyST:
 
 ```{code-cell} python
 # MyST code-cell directive

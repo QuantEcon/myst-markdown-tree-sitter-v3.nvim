@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Test script to validate the #no-match fix for MyST highlighting
-echo "=== Testing #no-match Fix for MyST Highlighting ==="
+# Test script to validate the tree-sitter compatible highlighting disable fix for MyST
+echo "=== Testing Tree-sitter Compatible MyST Highlighting Fix ==="
 echo ""
 
 # Check that markdown highlights.scm file exists
@@ -13,13 +13,15 @@ else
     exit 1
 fi
 
-# Check that the file contains #no-match predicate
+# Check that the file contains proper tree-sitter predicate syntax
 echo ""
-echo "2. Checking for #no-match predicate..."
-if grep -q "#no-match!" queries/markdown/highlights.scm; then
-    echo "✓ Found #no-match! predicate"
+echo "2. Checking for proper tree-sitter predicate syntax..."
+if grep -q "#set!.*highlight.disable" queries/markdown/highlights.scm; then
+    echo "✓ Found #set! highlight.disable predicate (tree-sitter compatible)"
+elif grep -q "#no-match!" queries/markdown/highlights.scm; then
+    echo "⚠ Found #no-match! predicate (may not be standard tree-sitter syntax)"
 else
-    echo "✗ Missing #no-match! predicate"
+    echo "✗ Missing highlighting disable predicate"
     exit 1
 fi
 
@@ -66,3 +68,5 @@ echo "1. Markdown will not highlight code blocks starting with \`\`\`{code-cell}
 echo "2. MyST can now highlight {code-cell} directives without interference"
 echo "3. Standard markdown code blocks (\`\`\`python) still work normally"
 echo "4. This should fix the intermittent highlighting issue for {code-cell} directives"
+echo ""
+echo "Note: Updated to use #set! syntax for better tree-sitter compatibility"

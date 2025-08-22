@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Comprehensive integration test for the #no-match MyST highlighting fix
-echo "=== Comprehensive Integration Test for #no-match MyST Fix ==="
+# Comprehensive integration test for the tree-sitter compatible MyST highlighting fix
+echo "=== Comprehensive Integration Test for Tree-sitter Compatible MyST Fix ==="
 echo ""
 
 # Test 1: Validate core functionality is preserved
@@ -21,14 +21,14 @@ else
     exit 1
 fi
 
-# Test 2: Validate the new #no-match fix
+# Test 2: Validate the new tree-sitter compatible fix
 echo ""
-echo "2. Testing new #no-match functionality..."
+echo "2. Testing new tree-sitter compatible functionality..."
 
 if ./test/validate_no_match_fix.sh > /dev/null 2>&1; then
-    echo "✓ #no-match fix validation passes"
+    echo "✓ tree-sitter compatible fix validation passes"
 else
-    echo "✗ #no-match fix validation failed"
+    echo "✗ tree-sitter compatible fix validation failed"
     exit 1
 fi
 
@@ -75,12 +75,12 @@ else
     exit 1
 fi
 
-# Check that our new #no-match pattern exists
-no_match_patterns=$(grep -c "#no-match!" queries/markdown/highlights.scm)
-if [ "$no_match_patterns" -eq 1 ]; then
-    echo "✓ #no-match pattern correctly implemented"
+# Check that our new highlight disable pattern exists
+highlight_disable_patterns=$(grep -c "#set!.*highlight.disable" queries/markdown/highlights.scm)
+if [ "$highlight_disable_patterns" -eq 1 ]; then
+    echo "✓ highlight.disable pattern correctly implemented"
 else
-    echo "✗ #no-match pattern count incorrect ($no_match_patterns found, expected 1)"
+    echo "✗ highlight.disable pattern count incorrect ($highlight_disable_patterns found, expected 1)"
     exit 1
 fi
 
@@ -115,7 +115,7 @@ echo ""
 echo "=== All Integration Tests Passed! ==="
 echo ""
 echo "Summary of the fix:"
-echo "1. ✓ Added queries/markdown/highlights.scm with #no-match for {code-cell} patterns"
+echo "1. ✓ Added queries/markdown/highlights.scm with #set! highlight.disable for {code-cell} patterns"
 echo "2. ✓ Preserved all existing priority-based highlighting"
 echo "3. ✓ Maintained compatibility with standard markdown code blocks"
 echo "4. ✓ Created comprehensive test suite"
