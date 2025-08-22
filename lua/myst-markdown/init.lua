@@ -90,7 +90,7 @@ function M.setup_myst_highlighting()
   })
 end
 
--- Simple refresh highlighting function
+-- Simple refresh highlighting function with improved methods
 function M.refresh_highlighting()
   local buf = vim.api.nvim_get_current_buf()
   local filetype = vim.bo.filetype
@@ -113,74 +113,59 @@ function M.refresh_highlighting()
       parsers.filetype_to_parsername.myst = "markdown"
     end
     
-    -- Method 1: Try the most reliable approach using nvim-treesitter configs
-    local ts_configs_ok, ts_configs = pcall(require, "nvim-treesitter.configs")
-    if ts_configs_ok then
-      -- Force a clean restart by using the configs module
-      pcall(function()
-        local config = ts_configs.get_module("highlight")
-        if config and config.disable then
-          -- Temporarily disable highlighting
-          config.disable(parser_lang, buf)
-          
-          -- Re-enable highlighting after a brief moment
-          vim.schedule(function()
-            config.enable(parser_lang, buf)
-            M.setup_myst_highlighting()
-          end)
-        end
-      end)
-    end
-    
-    -- Method 2: Use nvim-treesitter highlight module as fallback
+    -- Try a more direct approach: use the TSBufEnable command equivalent
     local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
     if ts_highlight_ok and ts_highlight then
+      -- Method 1: Detach and reattach using the highlight module
       pcall(function()
-        -- Stop any existing highlighter
+        -- Clean detach
         if ts_highlight.detach then
           ts_highlight.detach(buf)
         end
-        
-        -- Start highlighting with correct language
+        -- Clean attach with the correct parser language
         if ts_highlight.attach then
           ts_highlight.attach(buf, parser_lang)
         end
       end)
     end
     
-    -- Method 3: Low-level vim.treesitter API as final fallback
-    pcall(function()
-      if vim.treesitter.stop then
-        vim.treesitter.stop(buf)
-      end
-      if vim.treesitter.start then
-        vim.treesitter.start(buf, parser_lang)
-      end
-    end)
+    -- Method 2: Try using the configs module if method 1 didn't work
+    local ts_configs_ok, ts_configs = pcall(require, "nvim-treesitter.configs")
+    if ts_configs_ok then
+      pcall(function()
+        local config = ts_configs.get_module("highlight")
+        if config and config.enable then
+          -- Enable highlighting for this buffer specifically
+          config.enable(parser_lang, buf)
+        end
+      end)
+    end
     
     -- Always refresh MyST highlighting
     M.setup_myst_highlighting()
     
-    -- Improved validation: check if we can get a parser for the buffer
+    -- Wait a brief moment for the highlighting system to activate
+    vim.wait(50, function() return false end)
+    
+    -- Proper validation: check if Tree-sitter highlighting is actually active
     local validation_success = false
     local validation_message = "Tree-sitter highlighting failed to activate"
     
-    -- Check if parser is available and working
+    -- The real test: is the highlight module actually active for this buffer?
     pcall(function()
-      local parser = vim.treesitter.get_parser(buf, parser_lang)
-      if parser then
+      local ts_highlight_check_ok, ts_highlight_check = pcall(require, "nvim-treesitter.highlight")
+      if ts_highlight_check_ok and ts_highlight_check and ts_highlight_check.active and ts_highlight_check.active[buf] then
         validation_success = true
         validation_message = "Tree-sitter highlighting activated successfully"
       end
     end)
     
-    -- Additional check using highlight module if available
+    -- Secondary validation: check if parser is available (for debugging info)
     if not validation_success then
       pcall(function()
-        local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
-        if ts_highlight_ok and ts_highlight and ts_highlight.active and ts_highlight.active[buf] then
-          validation_success = true
-          validation_message = "Tree-sitter highlighting activated via highlight module"
+        local parser = vim.treesitter.get_parser(buf, parser_lang)
+        if parser then
+          validation_message = "Parser available but highlighting not active - try :TSBufEnable highlight"
         end
       end)
     end
