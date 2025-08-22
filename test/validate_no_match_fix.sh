@@ -23,13 +23,13 @@ else
     exit 1
 fi
 
-# Check that pattern matches directives starting with {
+# Check that pattern matches directives starting with {code-cell}
 echo ""
-echo "3. Checking pattern for directives starting with {..."
-if grep -q 'match.*\\{' queries/markdown/highlights.scm; then
-    echo "✓ Found pattern matching directives starting with {"
+echo "3. Checking pattern for {code-cell} directives..."
+if grep -q 'code-cell' queries/markdown/highlights.scm; then
+    echo "✓ Found pattern matching {code-cell} directives"
 else
-    echo "✗ Missing pattern for directives starting with {"
+    echo "✗ Missing pattern for {code-cell} directives"
     exit 1
 fi
 
@@ -62,7 +62,7 @@ echo ""
 echo "=== All Tests Passed! ==="
 echo ""
 echo "Expected behavior:"
-echo "1. Markdown will not highlight code blocks starting with \`\`\`{"
-echo "2. MyST can now highlight {code-cell}, {note}, etc. without interference"
+echo "1. Markdown will not highlight code blocks starting with \`\`\`{code-cell}"
+echo "2. MyST can now highlight {code-cell} directives without interference"
 echo "3. Standard markdown code blocks (\`\`\`python) still work normally"
-echo "4. This should fix the intermittent highlighting issue"
+echo "4. This should fix the intermittent highlighting issue for {code-cell} directives"

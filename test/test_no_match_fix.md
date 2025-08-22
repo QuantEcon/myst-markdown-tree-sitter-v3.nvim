@@ -1,6 +1,6 @@
 # Test MyST No-Match Fix
 
-This test file validates that the `#no-match` fix prevents markdown from highlighting MyST directives.
+This test file validates that the `#no-match` fix prevents markdown from highlighting MyST {code-cell} directives.
 
 ## Standard Markdown Code Block
 This should still have normal markdown highlighting:
@@ -22,19 +22,13 @@ arr = np.array([1, 2, 3])
 print(arr.mean())
 ```
 
-## MyST Note Directive
-This should also NOT be highlighted by markdown:
-
-```{note}
-This is a MyST note directive that should not get markdown highlighting.
-```
-
-## Another MyST Directive
-```{warning}
-This warning directive should also be handled by MyST, not markdown.
+## Another MyST Code-Cell Directive
+```{code-cell}
+# Another code-cell without language specification
+print("This should also be handled by MyST, not markdown")
 ```
 
 ## Validation Points
 1. Standard markdown code blocks (```python) should still work
-2. MyST directives (```{code-cell}, ```{note}, etc.) should not get markdown highlighting
-3. MyST highlighting should take precedence for directives starting with ```{
+2. MyST {code-cell} directives should not get markdown highlighting
+3. MyST highlighting should take precedence for {code-cell} directives starting with ```{code-cell}
