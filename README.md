@@ -105,14 +105,6 @@ print(df)
 
 Will be highlighted with language-specific syntax highlighting, similar to standard markdown code blocks.
 
-**Code-cell blocks without explicit language will default to Python highlighting:**
-
-````markdown
-```{code-cell}
-import pandas as pd  # This gets Python syntax highlighting
-print("Default language is Python")
-```
-````
 
 **Supported Languages in Code Cells:**
 - Python (`python`)
