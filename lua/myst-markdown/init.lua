@@ -104,15 +104,51 @@ function M.refresh_highlighting()
   if has_treesitter then
     local parser_lang = (filetype == "myst") and "markdown" or filetype
     
-    -- Simple approach: restart tree-sitter highlighting
-    pcall(function()
-      if vim.treesitter.stop then
-        vim.treesitter.stop(buf)
+    -- Set up parser mapping for myst filetype (crucial step that was missing)
+    if filetype == "myst" then
+      local parsers = require("nvim-treesitter.parsers")
+      if not parsers.filetype_to_parsername then
+        parsers.filetype_to_parsername = {}
       end
-      if vim.treesitter.start then
-        vim.treesitter.start(buf, parser_lang)
-      end
-    end)
+      parsers.filetype_to_parsername.myst = "markdown"
+    end
+    
+    -- Try using nvim-treesitter's highlight module for proper management
+    local ts_highlight_ok, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+    if ts_highlight_ok and ts_highlight then
+      -- First detach any existing highlighter
+      pcall(function()
+        if ts_highlight.detach then
+          ts_highlight.detach(buf)
+        end
+      end)
+      
+      -- Wait a moment for detach to complete
+      vim.wait(100, function() return false end) -- Wait 100ms
+      
+      -- Attach with the correct parser language
+      pcall(function()
+        if ts_highlight.attach then
+          ts_highlight.attach(buf, parser_lang)
+        end
+      end)
+      
+      -- Wait for attachment to complete
+      vim.wait(100, function() return false end) -- Wait 100ms
+      
+    else
+      -- Fallback to low-level API if nvim-treesitter.highlight not available
+      pcall(function()
+        if vim.treesitter.stop then
+          vim.treesitter.stop(buf)
+        end
+        vim.wait(50, function() return false end) -- Wait 50ms
+        if vim.treesitter.start then
+          vim.treesitter.start(buf, parser_lang)
+        end
+        vim.wait(100, function() return false end) -- Wait 100ms
+      end)
+    end
     
     -- Refresh MyST highlighting
     M.setup_myst_highlighting()
