@@ -33,14 +33,14 @@ ls -la
 ## Edge Cases
 
 ```{code-cell}
-# This should use Python highlighting (default)
+# This should NOT get syntax highlighting (no language specified)
 import pandas as pd
-print("No language specified, but should be Python")
+print("No language specified, should not be highlighted")
 ```
 
 ```{code-cell}
-# Another test of default Python highlighting
+# Another test - no syntax highlighting expected
 def test_function():
-    return "Hello from MyST code-cell with default Python!"
+    return "Hello from MyST code-cell with no language specified!"
 print(test_function())
 ```
