@@ -104,9 +104,8 @@ For debugging and manual control, the plugin provides these commands:
 - `:MystEnable` - Enable MyST highlighting for the current buffer
 - `:MystDisable` - Disable MyST highlighting for the current buffer (reverts to markdown)
 - `:MystDebug` - Show debugging information about MyST state and tree-sitter queries
-- `:MystRefresh` - Force refresh MyST highlighting for the current buffer
 
-These commands are useful for debugging highlighting issues and testing MyST functionality. The `:MystRefresh` command is particularly helpful if syntax highlighting appears to be missing or incorrect.
+These commands are useful for debugging highlighting issues and testing MyST functionality.
 
 ### Code Cells
 
@@ -167,7 +166,6 @@ The plugin provides several commands for troubleshooting and manual control:
 
 - `:MystEnable` - Force enable MyST highlighting for current buffer
 - `:MystDisable` - Disable MyST highlighting (revert to markdown)
-- `:MystRefresh` - Force refresh highlighting (useful if highlighting breaks)
 - `:MystStatus` - Quick health check of MyST highlighting status
 - `:MystDebug` - Detailed debugging information with diagnostic suggestions
 
@@ -177,8 +175,7 @@ If MyST highlighting is not working:
 
 1. Run `:MystStatus` for a quick health check
 2. If file is not detected as MyST, try `:MystEnable`
-3. If tree-sitter is not active, try `:MystRefresh`
-4. For detailed diagnosis, run `:MystDebug`
+3. For detailed diagnosis, run `:MystDebug`
 
 ## Testing
 
