@@ -20,10 +20,10 @@ const data = [1, 2, 3];
 console.log(data.map(x => x * 2));
 ```
 
-## MyST Code-Cell without Language (should default to python)
+## MyST Code-Cell without Language (should NOT get syntax highlighting)
 ```{code-cell}
 import pandas as pd
-print("This should be highlighted as Python")
+print("This should NOT be highlighted as any language")
 ```
 
 ## Test other languages
