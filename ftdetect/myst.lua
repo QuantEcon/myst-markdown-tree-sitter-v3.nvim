@@ -10,9 +10,9 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
     
     for _, line in ipairs(lines) do
       -- Check for various MyST directives
-      if line:match("^```{code%-cell}") or       -- Code-cell directive
-         line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
-         line:match("^{[%w%-_]+}") then          -- Standalone MyST directives
+      if line:match("^```{code%-cell}") or       -- Code-cell directive (supported)
+         line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc. (detected but not highlighted)
+         line:match("^{[%w%-_]+}") then          -- Standalone MyST directives (detected but not highlighted)
         is_myst = true
         break
       end
@@ -32,9 +32,9 @@ vim.api.nvim_create_autocmd("FileType", {
     
     for _, line in ipairs(lines) do
       -- Check for various MyST directives
-      if line:match("^```{code%-cell}") or       -- Code-cell directive
-         line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc.
-         line:match("^{[%w%-_]+}") then          -- Standalone MyST directives
+      if line:match("^```{code%-cell}") or       -- Code-cell directive (supported)
+         line:match("^```{[%w%-_]+}") or         -- Other MyST directives like {raw}, {note}, etc. (detected but not highlighted)
+         line:match("^{[%w%-_]+}") then          -- Standalone MyST directives (detected but not highlighted)
         vim.bo.filetype = "myst"
         -- Simple refresh without complex timing
         vim.defer_fn(function()
