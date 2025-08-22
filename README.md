@@ -128,24 +128,24 @@ These commands are useful for debugging highlighting issues and testing MyST fun
 
 MyST code-cell directives like this:
 
-```markdown
+````markdown
 ```{code-cell} python
 import pandas as pd
 df = pd.DataFrame()
 print(df)
 ```
-```
+````
 
 Will be highlighted with language-specific syntax highlighting, similar to standard markdown code blocks.
 
 **Code-cell blocks without explicit language will default to Python highlighting:**
 
-```markdown
+````markdown
 ```{code-cell}
 import pandas as pd  # This gets Python syntax highlighting
 print("Default language is Python")
 ```
-```
+````
 
 **Supported Languages in Code Cells:**
 - Python (`python`)
